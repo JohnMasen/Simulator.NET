@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Simulator.NET (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Simulator.NET (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
