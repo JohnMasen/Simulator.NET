@@ -2,17 +2,20 @@
 
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="4785db76-8980-447f-8dd5-12c05b214cd2"
+    Name="3464f997-625b-4b10-abbb-544e6d35c520"
     Publisher="CN=qijian"
     Version="1.0.0.0" />
 
+  <mp:PhoneIdentity PhoneProductId="3464f997-625b-4b10-abbb-544e6d35c520" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
   <Properties>
-    <DisplayName>Simulator.NET</DisplayName>
+    <DisplayName>ComputeSharpTest1</DisplayName>
     <PublisherDisplayName>qijian</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -31,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Simulator.NET"
-        Description="Simulator.NET"
+        DisplayName="ComputeSharpTest1"
+        Description="ComputeSharpTest1"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

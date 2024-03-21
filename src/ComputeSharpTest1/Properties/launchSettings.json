@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "Simulator.NET (Package)": {
+    "ComputeSharpTest1 (Package)": {
       "commandName": "MsixPackage"
     },
-    "Simulator.NET (Unpackaged)": {
+    "ComputeSharpTest1 (Unpackaged)": {
       "commandName": "Project"
     }
   }

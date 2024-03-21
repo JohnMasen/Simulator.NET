@@ -1,8 +1,9 @@
-﻿<Application
-    x:Class="Simulator.NET.App"
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="ComputeSharpTest1.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Simulator.NET">
+    xmlns:local="using:ComputeSharpTest1">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
