@@ -29,7 +29,8 @@ namespace ComputeSharpTest1;
 public sealed partial class MainWindow : Window
 {
     //SoftwareBitmap bitmap;
-    LifeGameEngine engine;
+    //LifeGameEngine engine;
+    TransformEngine<LiveGameDebugItem, LifeGameTest> engine;
     private const int XCOUNT = 1500;
     private const int YCOUNT = 1000;
     Task runGame;
@@ -44,8 +45,17 @@ public sealed partial class MainWindow : Window
         //bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 100, 100);
         //var s = new SoftwareBitmapSource();
         //s.SetBitmapAsync(bitmap).AsTask().Wait();
-        var raw = Random.Shared.GetItems<int>(new int[] { 1, 0 }, XCOUNT * YCOUNT);
-        engine = new LifeGameEngine(raw, XCOUNT, YCOUNT);
+        
+        //engine = new LifeGameEngine(raw, XCOUNT, YCOUNT);
+        initEngine();
+    }
+    private void initEngine()
+    {
+        var raw = Random.Shared.GetItems<LiveGameDebugItem>(new LiveGameDebugItem[] { new LiveGameDebugItem() { Value = 1 }, new LiveGameDebugItem() { Value = 0 } }, XCOUNT * YCOUNT);
+        engine = new TransformEngine<LiveGameDebugItem, LifeGameTest>(GraphicsDevice.GetDefault(),XCOUNT,YCOUNT, raw, (_source, _target) =>
+        {
+            return new LifeGameTest(_source, _target, XCOUNT, YCOUNT);
+        });
     }
 
     private void myButton_Click(object sender, RoutedEventArgs e)
@@ -120,10 +130,14 @@ public sealed partial class MainWindow : Window
 
     void drawTextPixelShader(CanvasControl sender, CanvasDrawEventArgs args)
     {
-        var data = engine.GetOutput();
-        PixelShaderEffect<TestShader> shader = new PixelShaderEffect<TestShader>();
-        shader.ConstantBuffer = new TestShader(new int2((int)sender.ActualWidth,(int)sender.ActualHeight));
-        args.DrawingSession.DrawImage(shader);
+        //var data = engine.GetOutput();
+        engine.WithOutput(data =>
+        {
+            PixelShaderEffect<TestShader> shader = new PixelShaderEffect<TestShader>();
+            shader.ConstantBuffer = new TestShader(new int2((int)sender.ActualWidth, (int)sender.ActualHeight));
+            args.DrawingSession.DrawImage(shader);
+        });
+        
     }
     private string getMatrixValue(int3x3 value)
     {
@@ -136,8 +150,9 @@ public sealed partial class MainWindow : Window
 
     private void Reset_Click(object sender, RoutedEventArgs e)
     {
-        var raw = Random.Shared.GetItems<int>(new int[] { 1, 0 }, XCOUNT * YCOUNT);
-        engine = new LifeGameEngine(raw, XCOUNT, YCOUNT);
+        //var raw = Random.Shared.GetItems<int>(new int[] { 1, 0 }, XCOUNT * YCOUNT);
+        //engine = new LifeGameEngine(raw, XCOUNT, YCOUNT);
+        initEngine();
         canvas1.Invalidate();
     }
 

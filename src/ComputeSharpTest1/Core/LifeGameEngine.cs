@@ -39,8 +39,8 @@ public class LifeGameEngine
         }
         rwbuffer1.CopyFrom(tmpM.Span);
         shaders = new LifeGameTest[2];
-        shaders[0] = new LifeGameTest(rwbuffer1, rwbuffer2, xcount, ycount);
-        shaders[1] = new LifeGameTest(rwbuffer2, rwbuffer1, xcount, ycount);
+        //shaders[0] = new LifeGameTest(rwbuffer1, rwbuffer2, xcount, ycount);
+        //shaders[1] = new LifeGameTest(rwbuffer2, rwbuffer1, xcount, ycount);
     }
 
     public void Step()
