@@ -1,7 +1,11 @@
 using System;
 using System.Buffers;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Numerics.Tensors;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -35,8 +39,8 @@ public sealed partial class MainWindow : Window
     //SoftwareBitmap bitmap;
     //LifeGameEngine engine;
     TransformEngine<LifeGameDItem, LifeGameShader> engine;
-    private const int XCOUNT = 2000;
-    private const int YCOUNT = 2000;
+    private const int XCOUNT = 4096;
+    private const int YCOUNT = 4096;
     Task runGame;
     CancellationTokenSource cts;
     bool isDebug = false;
@@ -85,15 +89,15 @@ public sealed partial class MainWindow : Window
     private void drawLifegameResult(CanvasControl sender, CanvasDrawEventArgs args)
     {
         CanvasSolidColorBrush aliveBrush = new CanvasSolidColorBrush(args.DrawingSession.Device, Color.FromArgb(255, 0, 0, 0));
-        float unitWidth = (float)(sender.ActualWidth / XCOUNT);
-        float unitHeight = (float)(sender.ActualHeight / YCOUNT);
+        //float unitWidth = (float)(sender.ActualWidth / XCOUNT);
+        //float unitHeight = (float)(sender.ActualHeight / YCOUNT);
         CanvasTextFormat format = new CanvasTextFormat();
         format.HorizontalAlignment = CanvasHorizontalAlignment.Center;
         format.VerticalAlignment = CanvasVerticalAlignment.Center;
         Stopwatch sw = new Stopwatch();
         if (cache == null)
         {
-            displayBuffer = new byte[XCOUNT * YCOUNT * 16]; //w*h*pixel in bytes
+            displayBuffer = new byte[XCOUNT * YCOUNT * 16]; //w*h*pixel_in_bytes
             cache = CanvasBitmap.CreateFromBytes(sender, displayBuffer, XCOUNT, YCOUNT, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float);
         }
         
@@ -102,24 +106,45 @@ public sealed partial class MainWindow : Window
             var data = mo.Memory.Slice(0, XCOUNT * YCOUNT);
             engine.GetOutput(data);
             sw.Start();
-            Span<float4> m = MemoryMarshal.Cast<byte, float4>(displayBuffer.AsSpan());
             
-            for (int i = 0; i < XCOUNT*YCOUNT; i++)
+            float4 white = new Float4(1, 1, 1, 1);
+            float4 black = new Float4(0, 0, 0, 1);
+            var p = Partitioner.Create(0,XCOUNT * YCOUNT);
+            var r = Enumerable.Range(0, XCOUNT * YCOUNT);
+            if (isDebug)
             {
-                if (data.Span[i].Value == 0)
+                Parallel.ForEach(p, range =>
                 {
-                    m[i].R = 1f;
-                    m[i].G = 1f;
-                    m[i].B = 1f;
-                }
-                else
-                {
-                    m[i].R = 0;
-                    m[i].G = 0;
-                    m[i].B = 0;
-                }
-                m[i].W = 1f;
+                    Span<float4> m = MemoryMarshal.Cast<byte, float4>(displayBuffer.AsSpan());
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        m[i] = data.Span[i].Value == 0 ? white : black;
+                    }
+                });
             }
+            else
+            {
+                Span<float4> m = MemoryMarshal.Cast<byte, float4>(displayBuffer.AsSpan());
+                for (int i = 0; i < XCOUNT * YCOUNT; i++)
+                {
+                    m[i] = data.Span[i].Value == 0 ? white : black;
+                    //if (data.Span[i].Value == 0)
+                    //{
+                    //    m[i].R = 1f;
+                    //    m[i].G = 1f;
+                    //    m[i].B = 1f;
+                    //}
+                    //else
+                    //{
+                    //    m[i].R = 0;
+                    //    m[i].G = 0;
+                    //    m[i].B = 0;
+                    //}
+                    //m[i].W = 1f;
+                }
+            }
+
+
             cache.SetPixelBytes(displayBuffer);
             
             args.DrawingSession.DrawImage(cache,new Rect(0,0,sender.ActualWidth,sender.ActualHeight));
