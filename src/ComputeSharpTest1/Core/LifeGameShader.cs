@@ -9,7 +9,7 @@ using Windows.ApplicationModel.Contacts;
 namespace ComputeSharpTest1.Core;
 [ThreadGroupSize(DefaultThreadGroupSizes.XY)]
 [GeneratedComputeShaderDescriptor]
-public readonly partial struct LifeGameTest(ReadWriteBuffer<LiveGameDebugItem> buffer1, ReadWriteBuffer<LiveGameDebugItem> buffer2, int xCount, int yCount) : IComputeShader
+public readonly partial struct LifeGameShader(ReadWriteBuffer<LifeGameDItem> buffer1, ReadWriteBuffer<LifeGameDItem> buffer2, int xCount, int yCount) : IComputeShader
 {
     public void Execute()
     {
@@ -19,7 +19,7 @@ public readonly partial struct LifeGameTest(ReadWriteBuffer<LiveGameDebugItem> b
         int xEnd = ThreadIds.X == xCount - 1 ? 0 : 1;
         int yStart = ThreadIds.Y == 0 ? 0 : -1;
         int yEnd = ThreadIds.Y == yCount - 1 ? 0 : 1;
-
+        
         //if (xStart<0)
         //{
         //    xStart = 0;
@@ -46,7 +46,7 @@ public readonly partial struct LifeGameTest(ReadWriteBuffer<LiveGameDebugItem> b
             }
         }
         count -= buffer1[idx].Value;
-
+        
         int newValue = 0;
         if (count==3)
         {

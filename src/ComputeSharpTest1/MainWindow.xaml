@@ -8,14 +8,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
-    mc:Ignorable="d">
+    xmlns:computersharp="using:ComputeSharp.WinUI"
+    mc:Ignorable="d"
+    >
     
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <StackPanel Grid.Row="0"  Orientation="Horizontal">
+            <ComboBox x:Name="cmbDevices"/>
             <Button  x:Name="myButton" Click="myButton_Click">Step</Button>
             <Button x:Name="Reset" Click="Reset_Click">Reset</Button>
             <Button x:Name="Run" Click="Run_Click">Run</Button>
@@ -24,8 +27,10 @@
             <TextBlock x:Name="txtRenderTime"/>
             <TextBlock x:Name="txtEngineTime"/>
         </StackPanel>
-        
-        <canvas:CanvasControl x:Name="canvas1" Grid.Row="1" Draw="CanvasControl_Draw" ClearColor="White"/>
+        <ScrollView ZoomMode="Enabled" Grid.Row="1">
+        <canvas:CanvasControl x:Name="canvas1"  Draw="CanvasControl_Draw" ClearColor="White"/>
+        </ScrollView>
+        <!--<computersharp:ComputeShaderPanel x:Name="cs1" Grid.Row="1"/>-->
     </Grid>
     <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
         

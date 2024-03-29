@@ -2,17 +2,21 @@ using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ComputeSharp;
 using ComputeSharp.D2D1;
 using ComputeSharp.D2D1.WinUI;
+using ComputeSharp.WinUI;
 using ComputeSharpTest1.Core;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using Microsoft.Graphics.DirectX;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Foundation;
@@ -30,31 +34,43 @@ public sealed partial class MainWindow : Window
 {
     //SoftwareBitmap bitmap;
     //LifeGameEngine engine;
-    TransformEngine<LiveGameDebugItem, LifeGameTest> engine;
-    private const int XCOUNT = 1500;
-    private const int YCOUNT = 1000;
+    TransformEngine<LifeGameDItem, LifeGameShader> engine;
+    private const int XCOUNT = 2000;
+    private const int YCOUNT = 2000;
     Task runGame;
     CancellationTokenSource cts;
     bool isDebug = false;
     TimeSpan engineStepDuration;
-    CanvasCachedGeometry[,] cachedAliveCells;
-    CanvasCachedGeometry[,] cachedDeadCells;
+    //CanvasCachedGeometry[,] cachedAliveCells;
+    //CanvasCachedGeometry[,] cachedDeadCells;
+    CanvasBitmap cache;
+    byte[] displayBuffer;
+    LifeGameRenderShader renderShader;
     public MainWindow()
     {
         this.InitializeComponent();
         //bitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, 100, 100);
         //var s = new SoftwareBitmapSource();
         //s.SetBitmapAsync(bitmap).AsTask().Wait();
-        
+
         //engine = new LifeGameEngine(raw, XCOUNT, YCOUNT);
+
+        foreach (var item in GraphicsDevice.EnumerateDevices())
+        {
+            cmbDevices.Items.Add(item);
+        }
+        canvas1.Width = XCOUNT;
+        canvas1.Height = YCOUNT;
+        cmbDevices.SelectedItem = GraphicsDevice.GetDefault();
         initEngine();
+
     }
     private void initEngine()
     {
-        var raw = Random.Shared.GetItems<LiveGameDebugItem>(new LiveGameDebugItem[] { new LiveGameDebugItem() { Value = 1 }, new LiveGameDebugItem() { Value = 0 } }, XCOUNT * YCOUNT);
-        engine = new TransformEngine<LiveGameDebugItem, LifeGameTest>(GraphicsDevice.GetDefault(),XCOUNT,YCOUNT, raw, (_source, _target) =>
+        var raw = Random.Shared.GetItems<LifeGameDItem>(new LifeGameDItem[] { new LifeGameDItem() { Value = 1 }, new LifeGameDItem() { Value = 0 } }, XCOUNT * YCOUNT);
+        engine = new TransformEngine<LifeGameDItem, LifeGameShader>((GraphicsDevice)cmbDevices.SelectedItem, XCOUNT, YCOUNT, raw, (_source, _target) =>
         {
-            return new LifeGameTest(_source, _target, XCOUNT, YCOUNT);
+            return new LifeGameShader(_source, _target, XCOUNT, YCOUNT);
         });
     }
 
@@ -75,48 +91,75 @@ public sealed partial class MainWindow : Window
         format.HorizontalAlignment = CanvasHorizontalAlignment.Center;
         format.VerticalAlignment = CanvasVerticalAlignment.Center;
         Stopwatch sw = new Stopwatch();
-
-        using (var mo = MemoryPool<LiveGameDebugItem>.Shared.Rent(XCOUNT * YCOUNT))
+        if (cache == null)
+        {
+            displayBuffer = new byte[XCOUNT * YCOUNT * 16]; //w*h*pixel in bytes
+            cache = CanvasBitmap.CreateFromBytes(sender, displayBuffer, XCOUNT, YCOUNT, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float);
+        }
+        
+        using (var mo = MemoryPool<LifeGameDItem>.Shared.Rent(XCOUNT * YCOUNT))
         {
             var data = mo.Memory.Slice(0, XCOUNT * YCOUNT);
             engine.GetOutput(data);
             sw.Start();
-            Parallel.For(0, YCOUNT, y =>
+            Span<float4> m = MemoryMarshal.Cast<byte, float4>(displayBuffer.AsSpan());
+            
+            for (int i = 0; i < XCOUNT*YCOUNT; i++)
             {
-                for (int x = 0; x < XCOUNT; x++)
+                if (data.Span[i].Value == 0)
                 {
-                    int idx = y * XCOUNT + x;
-                    var v = data.Span[idx];
-                    if (isDebug)
-                    {
-                        //string debugInfo = $"{v.Value}({v.Count}:{v.LoopCount}[X:{v.XStart}~{v.XEnd} Y:{v.YStart}~{v.YEnd}])";
-                        //debugInfo = $"[{v.Value},{v.Count},{v.LastValue}]{getMatrixValue(v.calcItem)}";
-                        //args.DrawingSession.DrawRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
-                        //args.DrawingSession.DrawText(debugInfo, new Rect(x * unitWidth, y * unitHeight, unitWidth, unitHeight), aliveBrush, format);
-                    }
-                    else
-                    {
-                        if (data.Span[y * XCOUNT + x].Value == 1)
-                        {
-
-                            args.DrawingSession.FillRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
-                        }
-                        else
-                        {
-                            //args.DrawingSession.DrawRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
-                        }
-                    }
+                    m[i].R = 1f;
+                    m[i].G = 1f;
+                    m[i].B = 1f;
                 }
-            });
+                else
+                {
+                    m[i].R = 0;
+                    m[i].G = 0;
+                    m[i].B = 0;
+                }
+                m[i].W = 1f;
+            }
+            cache.SetPixelBytes(displayBuffer);
+            
+            args.DrawingSession.DrawImage(cache,new Rect(0,0,sender.ActualWidth,sender.ActualHeight));
+
+            //Parallel.For(0, YCOUNT, y =>
+            //{
+            //    for (int x = 0; x < XCOUNT; x++)
+            //    {
+            //        int idx = y * XCOUNT + x;
+            //        var v = data.Span[idx];
+            //        if (isDebug)
+            //        {
+            //            //string debugInfo = $"{v.Value}({v.Count}:{v.LoopCount}[X:{v.XStart}~{v.XEnd} Y:{v.YStart}~{v.YEnd}])";
+            //            //debugInfo = $"[{v.Value},{v.Count},{v.LastValue}]{getMatrixValue(v.calcItem)}";
+            //            //args.DrawingSession.DrawRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
+            //            //args.DrawingSession.DrawText(debugInfo, new Rect(x * unitWidth, y * unitHeight, unitWidth, unitHeight), aliveBrush, format);
+            //        }
+            //        else
+            //        {
+            //            if (data.Span[y * XCOUNT + x].Value == 1)
+            //            {
+
+            //                args.DrawingSession.FillRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
+            //            }
+            //            else
+            //            {
+            //                //args.DrawingSession.DrawRectangle(x * unitWidth, y * unitHeight, unitWidth, unitHeight, aliveBrush);
+            //            }
+            //        }
+            //    }
+            //});
             //for (int y = 0; y < YCOUNT; y++)
             //{
 
             //}
-
+            sw.Stop();
+            txtRenderTime.Text = $"{sw.ElapsedMilliseconds}ms";
         }
-        sw.Stop();
-        txtRenderTime.Text = $"{sw.ElapsedMilliseconds}ms";
-        txtEngineTime.Text = $"Engine:{engineStepDuration.Milliseconds}";
+        
+
         //args.DrawingSession.FillRectangle(new Rect(0, 0, sender.ActualWidth, sender.ActualHeight),);
         //args.DrawingSession.DrawEllipse(155, 115, 80, 30, Colors.Black, 3);
         //args.DrawingSession.DrawText("Hello, world!", 100, 100, Colors.Yellow);
@@ -137,7 +180,7 @@ public sealed partial class MainWindow : Window
             shader.ConstantBuffer = new TestShader(new int2((int)sender.ActualWidth, (int)sender.ActualHeight));
             args.DrawingSession.DrawImage(shader);
         });
-        
+
     }
     private string getMatrixValue(int3x3 value)
     {
@@ -165,6 +208,7 @@ public sealed partial class MainWindow : Window
     private void Run_Click(object sender, RoutedEventArgs e)
     {
         cts = new CancellationTokenSource();
+        int callCount = 0;
         runGame = Task.Run(() =>
         {
             while (!cts.Token.IsCancellationRequested)
@@ -173,6 +217,19 @@ public sealed partial class MainWindow : Window
                 engine.Step();
                 sw.Stop();
                 engineStepDuration = sw.Elapsed;
+                DispatcherQueue?.TryEnqueue(() =>
+                {
+                    try
+                    {
+                        txtEngineTime.Text = $"Engine:{engineStepDuration.Milliseconds} CallCount:{callCount++}";
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    
+                });
+
                 canvas1.Invalidate();
                 Task.Delay(1).Wait();
             }
