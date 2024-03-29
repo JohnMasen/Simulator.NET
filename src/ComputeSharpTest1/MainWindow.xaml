@@ -29,8 +29,9 @@
         </StackPanel>
         <ScrollView ZoomMode="Enabled" Grid.Row="1">
         <canvas:CanvasControl x:Name="canvas1"  Draw="CanvasControl_Draw" ClearColor="White"/>
+            <!--<computersharp:ComputeShaderPanel x:Name="cs1" Grid.Row="1"/>-->
         </ScrollView>
-        <!--<computersharp:ComputeShaderPanel x:Name="cs1" Grid.Row="1"/>-->
+        
     </Grid>
     <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
         

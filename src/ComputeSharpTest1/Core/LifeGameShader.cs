@@ -9,8 +9,11 @@ using Windows.ApplicationModel.Contacts;
 namespace ComputeSharpTest1.Core;
 [ThreadGroupSize(DefaultThreadGroupSizes.XY)]
 [GeneratedComputeShaderDescriptor]
-public readonly partial struct LifeGameShader(ReadWriteBuffer<LifeGameDItem> buffer1, ReadWriteBuffer<LifeGameDItem> buffer2, int xCount, int yCount) : IComputeShader
+public readonly partial struct LifeGameShader(ReadWriteBuffer<LifeGameItem> buffer1, ReadWriteBuffer<LifeGameItem> buffer2, int xCount, int yCount) 
+    : IComputeShader
 {
+    
+
     public void Execute()
     {
 

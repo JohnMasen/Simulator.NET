@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ComputeSharpTest1.Core;
-public struct LifeGameDItem
+public struct LifeGameItem
 {
     public int Value;
     //public int XStart;
