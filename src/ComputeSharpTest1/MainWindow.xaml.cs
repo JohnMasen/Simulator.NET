@@ -51,6 +51,9 @@ public sealed partial class MainWindow : Window
     byte[] displayBuffer;
     //LifeGameShaderRunner<LifeGameShader> shaderRunner;
     LifeGameRender render;
+    readonly int3x3 mask = new( 1,1,1,
+                                1,0,1,
+                                1,1,1);
     public MainWindow()
     {
         this.InitializeComponent();
@@ -75,7 +78,7 @@ public sealed partial class MainWindow : Window
         var raw = Random.Shared.GetItems<LifeGameItem>(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, XCOUNT * YCOUNT);
         engine = new TransformEngine<LifeGameItem, LifeGameShader>((GraphicsDevice)cmbDevices.SelectedItem, new System.Drawing.Size(XCOUNT, YCOUNT), raw, (_source, _target) =>
         {
-            return new LifeGameShader(_source, _target, XCOUNT, YCOUNT);
+            return new LifeGameShader(_source, _target, XCOUNT, YCOUNT,mask);
         });
         render = new LifeGameRender((GraphicsDevice)cmbDevices.SelectedItem, new System.Drawing.Size(XCOUNT, YCOUNT));
         //shaderRunner = new LifeGameShaderRunner<LifeGameShader>((GraphicsDevice)cmbDevices.SelectedItem, engine, XCOUNT);

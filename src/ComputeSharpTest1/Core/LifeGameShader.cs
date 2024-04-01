@@ -9,64 +9,58 @@ using Windows.ApplicationModel.Contacts;
 namespace ComputeSharpTest1.Core;
 [ThreadGroupSize(DefaultThreadGroupSizes.XY)]
 [GeneratedComputeShaderDescriptor]
-public readonly partial struct LifeGameShader(ReadWriteBuffer<LifeGameItem> buffer1, ReadWriteBuffer<LifeGameItem> buffer2, int xCount, int yCount) 
+public readonly partial struct LifeGameShader(ReadWriteBuffer<LifeGameItem> buffer1, ReadWriteBuffer<LifeGameItem> buffer2, int xCount, int yCount, int3x3 mask)
     : IComputeShader
 {
-    
+
 
     public void Execute()
     {
-
+        LifeGameItem result = new LifeGameItem();
         int count = 0;
         int xStart = ThreadIds.X == 0 ? 0 : -1;
         int xEnd = ThreadIds.X == xCount - 1 ? 0 : 1;
         int yStart = ThreadIds.Y == 0 ? 0 : -1;
         int yEnd = ThreadIds.Y == yCount - 1 ? 0 : 1;
-        
-        //if (xStart<0)
-        //{
-        //    xStart = 0;
-        //}
-        //if (yStart<0)
-        //{
-        //    yStart = 0;
-        //}
-        int loopCount = 0;
+
+        //int loopCount = 0;
         int idx = ThreadIds.Y * xCount + ThreadIds.X;
-        //int3x3 nValues=0;
+        int3x3 nValues = 0;
+        //int3x3 mask = new Int3x3(1, 1, 1,
+        //                            1, 0, 1,
+        //                            1, 1, 1);
         for (int y = yStart; y <= yEnd; y++)
         {
             for (int x = xStart; x <= xEnd; x++)
             {
                 int dataIndex = (ThreadIds.Y + y) * xCount + ThreadIds.X + x;
-                int v=buffer1[dataIndex].Value;
-                //nValues[y+1][x+1] = v;
-                if (v ==1)
-                {
-                    count++;
-                }
-                loopCount++;
+                nValues[y + 1][x + 1] = buffer1[dataIndex].Value;
             }
         }
-        count -= buffer1[idx].Value;
-        
-        int newValue = 0;
-        if (count==3)
+        for (int i = 0; i < 3; i++)
         {
-            newValue = 1;
+            count += Hlsl.Dot(nValues[i], mask[i]);
         }
-        if (count==2)
+        var current = buffer1[idx];
+        result.LifeCount = current.LifeCount;
+        result.ContinuLifeCount = buffer2[idx].ContinuLifeCount;
+        if (count == 3)
         {
-            newValue = buffer1[idx].Value;
+            result.Reason = current.Value == 1 ? 0u : 1u;
+            result.Value = 1;
+            result.ContinuLifeCount += current.Value;
         }
-        //buffer2[idx].calcItem = nValues;
-        buffer2[idx].Value = newValue;
-        //buffer2[idx].LastValue = buffer1[idx].Value;
-        //buffer2[idx].XStart = xStart;
-        //buffer2[idx].YStart = yStart;
-        //buffer2[idx].XEnd = xEnd;
-        //buffer2[idx].YEnd = yEnd;
-        //buffer2[idx].Count = count;
-        //buffer2[idx].LoopCount = loopCount;
+        if (count == 2)
+        {
+            result.Value = current.Value;
+            result.ContinuLifeCount += current.Value;
+        }
+
+        if (result.Value == 1)
+        {
+            result.LifeCount++;
+            
+        }
+        buffer2[idx] = result;
     }
 }
