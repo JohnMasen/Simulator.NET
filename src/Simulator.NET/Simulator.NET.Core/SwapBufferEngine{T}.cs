@@ -21,6 +21,8 @@ namespace Simulator.NET.Core
         private Size size;
         public List<IPostProcessor<TData>> PostProcessors { get; } = new();
         private ITransformProcessor<TData> transformProcessor;
+        private bool isInitNeeded = true;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public SwapBufferEngine(GraphicsDevice device, Size bufferSize, Memory<TData> data, ITransformProcessor<TData> processor)
         {
             this.device = device;
@@ -32,13 +34,20 @@ namespace Simulator.NET.Core
             transformProcessor=processor;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         private void swapBuffer()
         {
             buffers = (buffers.target, buffers.source);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void Step()
         {
+            transformProcessor.BeforeProcess(device);
+            foreach (var item in PostProcessors)
+            {
+                item.BeforeProcess(device);
+            }
             using (var ctx = device.CreateComputeContext())
             {
                 transformProcessor.Process(in ctx, buffers.source, buffers.target);
@@ -47,8 +56,14 @@ namespace Simulator.NET.Core
                     item.Process(in ctx, buffers.target);
                 }
             }
+            transformProcessor.AfterProcess(device);
+            foreach (var item in PostProcessors)
+            {
+                item.AfterProcess(device);
+            }
             swapBuffer();
         }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public async Task StepAsync()
         {
             //var shader = createShader(buffers.source, buffers.target);
@@ -63,18 +78,29 @@ namespace Simulator.NET.Core
             swapBuffer();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void GetOutput(Memory<TData> outputBuffer)
         {
             buffers.target.CopyTo(outputBuffer.Span);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public ReadWriteBuffer<TData> GetOutputBuffer() => buffers.target;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void WithOutput(Action<Memory<TData>> outputProcessingCallback)
         {
             using var tmp = MemoryPool<TData>.Shared.Rent(buffers.target.Length);
             buffers.target.CopyTo(tmp.Memory.Span);
             outputProcessingCallback(tmp.Memory.Slice(buffers.target.Length));
+        }
+
+        private void tryInit()
+        {
+            if (isInitNeeded)
+            {
+                transformProcessor.Init(device,size);
+            }
         }
     }
 }

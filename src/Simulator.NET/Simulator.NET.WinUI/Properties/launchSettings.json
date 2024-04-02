@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Simulator.NET.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Simulator.NET.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
