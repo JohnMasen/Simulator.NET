@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Simulator.NET.Core;
 using Simulator.NET.LifeGame;
+using Simulator.NET.WinUI.Core;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -48,7 +50,10 @@ namespace Simulator.NET.WinUI.Control
         #endregion
 
         private Size backBufferSize;
+        AutoResetEvent aseResize = new(false);
         public LifeGameRender Render { get; set; }
+
+
 
         public LifeGamResultControl()
         {
@@ -64,22 +69,36 @@ namespace Simulator.NET.WinUI.Control
 
         private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
         {
-            var sw = Stopwatch.StartNew();
-            MemoryMarshal.AsBytes(output.Span).CopyTo(backBuffer);
-            bitmap.SetPixelBytes(backBuffer);
+            if (output == null)//not initlized
+            {
+                Debug.WriteLine("skipped drawing");
+                return;
+            }
+            //var sw = Stopwatch.StartNew();
+            
             args.DrawingSession.DrawImage(bitmap, new Windows.Foundation.Rect(0, 0, sender.ActualWidth, sender.ActualHeight));
-            sw.Stop();
+            
         }
 
         public void Process(ref readonly ComputeContext ctx, ReadWriteBuffer<LifeGameItem> data)
         {
             var shader = new LifeGameRenderShader(data, texture, backBufferSize.Width, alive, dead);
+            ctx.Barrier(data);
             ctx.For(backBufferSize.Width, backBufferSize.Height, shader);
-            ctx.Barrier(texture);
+            //ctx.Barrier(texture);
         }
 
         public void Init(GraphicsDevice device,Size size)
         {
+            
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                canvas1.Width = size.Width;
+                canvas1.Height = size.Height;
+                aseResize.Set();
+            });
+            aseResize.WaitOne();
+            
             backBufferSize = size;
             backBuffer = new byte[size.Width * size.Height * Marshal.SizeOf<float4>()];
             bitmap = CanvasBitmap.CreateFromBytes(canvas1, backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
@@ -93,9 +112,16 @@ namespace Simulator.NET.WinUI.Control
         }
 
         public void AfterProcess(GraphicsDevice device)
-        {
+        {   
+            var sw = Stopwatch.StartNew();
+            //output.Span.CopyTo()
             texture.CopyTo(output);
+            sw.Stop();
+            MemoryMarshal.AsBytes(output.Span).CopyTo(backBuffer);
+            bitmap.SetPixelBytes(backBuffer);
             canvas1.Invalidate();
+            
+            Debug.WriteLine($"after process={sw.ElapsedMilliseconds}");
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simulator.NET.WinUI.ViewModel
+namespace Simulator.NET.WinUI.Core
 {
-    internal interface IPlayableControl
+    public interface IPlayableControl
     {
         void Play();
         void Stop();

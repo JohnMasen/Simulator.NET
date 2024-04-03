@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -25,11 +26,14 @@ namespace Simulator.NET.WinUI
     public sealed partial class MainWindow : Window
     {
         public MainView ViewModel { get; private set; }
-        public MainWindow()
+        public MainWindow(MainView mainView)
         {
             this.InitializeComponent();
-            ViewModel = VMLocator.Instance.MainView;
+            this.ViewModel = mainView;
+            //ViewModel=App.Current.Services.GetService<MainView>();
         }
+
+        
 
         //private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
         //{

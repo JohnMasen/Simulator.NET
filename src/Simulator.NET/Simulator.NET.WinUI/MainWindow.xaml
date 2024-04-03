@@ -16,11 +16,14 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <Button VerticalAlignment="Top" x:Name="btnPlay" Command="{x:Bind ViewModel.PlayCommand}">Play</Button>
-            <Button VerticalAlignment="Top" x:Name="btnStop" Command="{x:Bind ViewModel.StepCommand}" IsEnabled="{x:Bind ViewModel.CanChangeSettings,Mode=OneWay}">Step</Button>
-            <ComboBox VerticalAlignment="Top" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{x:Bind Path=ViewModel.SelectedDevice,Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.CanChangeSettings,Mode=OneWay}"/>
+            <Button VerticalAlignment="Top" x:Name="btnPlay" Command="{x:Bind ViewModel.PlayCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Play</Button>
+            <Button VerticalAlignment="Top" x:Name="btnStep" Command="{x:Bind ViewModel.StepCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Step</Button>
+            <Button VerticalAlignment="Top" x:Name="btnReset" Command="{x:Bind ViewModel.ResetCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Reset</Button>
+            <Button VerticalAlignment="Top" x:Name="btnStop" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceBusy,Mode=OneWay}">Stop</Button>
+            <ComboBox VerticalAlignment="Top" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{x:Bind Path=ViewModel.SelectedDevice,Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}"/>
+            <TextBlock Text="{x:Bind ViewModel.SelectedDevice.IsHardwareAccelerated}"/>
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.Render}"/>
+        <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.UIContent}"/>
 
     </Grid>
 

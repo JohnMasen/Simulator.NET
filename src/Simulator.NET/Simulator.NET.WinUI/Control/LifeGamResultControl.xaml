@@ -9,7 +9,7 @@
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     mc:Ignorable="d">
 
-    <ScrollView>
-        <canvas:CanvasControl x:Name="canvas1" CreateResources="CanvasControl_CreateResources" Draw="CanvasControl_Draw"/>
+    <ScrollView ZoomMode="Enabled">
+        <canvas:CanvasControl x:Name="canvas1" CreateResources="CanvasControl_CreateResources" Draw="CanvasControl_Draw" ClearColor="White"/>
     </ScrollView>
 </UserControl>

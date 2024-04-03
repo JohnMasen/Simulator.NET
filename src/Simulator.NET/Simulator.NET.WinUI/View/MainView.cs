@@ -6,7 +6,7 @@ using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas;
 using Simulator.NET.Core;
 using Simulator.NET.LifeGame;
-using Simulator.NET.WinUI.ViewModel;
+using Simulator.NET.WinUI.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,19 +18,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Simulator.NET.WinUI.Control;
+using Microsoft.UI.Xaml.Controls;
+using System.ComponentModel;
 
 namespace Simulator.NET.WinUI.View
 {
-    public partial class MainView : ObservableObject, IPlayableControl, IResultRenderControl
+    public partial class MainView : ObservableObject, IPlayableControl, IRenderControlProvider
     {
         SwapBufferEngine<LifeGameItem> lifegameEngine;
         public IEnumerable<GraphicsDevice> Devices => GraphicsDevice.EnumerateDevices();
 
-        [ObservableProperty]
-        private GraphicsDevice selectedDevice = GraphicsDevice.GetDefault();
+        private GraphicsDevice device;
+        
+        public GraphicsDevice SelectedDevice {
+            get 
+            {
+                return device;
+            } 
+            set 
+            {
+                if (SetProperty(ref device, value))
+                {
+                    InitEngine();
+                }
+;            } 
+        }
 
         [ObservableProperty]
-        private bool canChangeSettings = true;
+        [NotifyPropertyChangedFor(nameof(IsDeviceIdle))]
+        private bool isDeviceBusy = false;
+        public bool IsDeviceIdle => !isDeviceBusy;
         [ObservableProperty]
         private int gridWidth = 4096;
         [ObservableProperty]
@@ -43,70 +60,74 @@ namespace Simulator.NET.WinUI.View
         byte[] displayBuffer;
         LifeGameRender render;
 
-        public LifeGamResultControl Render { get; } = new();
+        public MainView()
+        {
+            SelectedDevice = GraphicsDevice.GetDefault();
+        }
+
+        private LifeGamResultControl resultControl = new();
+
+        public string DisplayName => "Lifegame Result Content";
+
+        public UserControl UIContent => resultControl;
 
         [RelayCommand]
         public void Play()
         {
-            if (lifegameEngine==null)
-            {
-                InitEngine();
-            }
             FrameCount = 0;
-            CanChangeSettings = !CanChangeSettings;
+            IsDeviceBusy = true;
+            doStop();
+            cts = new CancellationTokenSource();
+            Task.Run(() =>
+            {
+                var token = cts.Token;
+                while (!token.IsCancellationRequested)
+                {
+                    lifegameEngine.Step();
+                    Task.Delay(1).Wait();
+                }
+            }, cts.Token);
+
         }
 
-        [RelayCommand(CanExecute ="CanChangeSettings")]
+        [RelayCommand(CanExecute = "IsDeviceIdle")]
         public void Step()
         {
-
+            IsDeviceBusy = true;
+            lifegameEngine.Step();
+            IsDeviceBusy = false;
         }
 
         private void InitEngine()
         {
+            doStop();
+            cts = null;
             var raw = Random.Shared.GetItems<LifeGameItem>(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, GridWidth * GridHeight);
             lifegameEngine = new SwapBufferEngine<LifeGameItem>(SelectedDevice, new Size(GridWidth, GridHeight), raw, new LifeGameProcessor());
-            lifegameEngine.PostProcessors.Add(Render);
+            lifegameEngine.PostProcessors.Add(resultControl);
             FrameCount = 0;
         }
 
         [RelayCommand]
         public void Reset()
         {
+            doStop();
             InitEngine();
+            cts = new CancellationTokenSource();
+            
         }
         [RelayCommand]
         public void Stop()
         {
-            
+            doStop();
+            IsDeviceBusy = false;
         }
-        public void OnDraw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
+
+        private void doStop()
         {
-            //CanvasSolidColorBrush aliveBrush = new CanvasSolidColorBrush(args.DrawingSession.Device, Color.FromArgb(255, 0, 0, 0));
-            //float unitWidth = (float)(sender.ActualWidth / XCOUNT);
-            //float unitHeight = (float)(sender.ActualHeight / YCOUNT);
-            CanvasTextFormat format = new CanvasTextFormat();
-            format.HorizontalAlignment = CanvasHorizontalAlignment.Center;
-            format.VerticalAlignment = CanvasVerticalAlignment.Center;
-
-            if (bitmap == null)
-            {
-                displayBuffer = new byte[GridWidth * GridHeight * 16]; //w*h*pixel_in_bytes
-                bitmap = CanvasBitmap.CreateFromBytes(sender, displayBuffer, GridWidth, GridHeight, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float);
-            }
-
-            var sw = Stopwatch.StartNew();
-            var data = render.output;
-            sw.Stop();
-            MemoryMarshal.AsBytes(data.Span).CopyTo(displayBuffer);
-
-            
-            sw.Stop();
-            bitmap.SetPixelBytes(displayBuffer);
-            args.DrawingSession.DrawImage(bitmap, new Windows.Foundation.Rect(0, 0, sender.ActualWidth, sender.ActualHeight));
-
-
-            //txtRenderTime.Text = $"{sw.ElapsedMilliseconds}ms";
+            cts?.Cancel();
+            cts = null;
         }
+        
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -6,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Simulator.NET.WinUI.View;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +34,19 @@ namespace Simulator.NET.WinUI
         /// </summary>
         public App()
         {
+            Services = initService();
+
+
             this.InitializeComponent();
+            
+        }
+        private IServiceProvider initService()
+        {
+            
+            return new ServiceCollection()
+                .AddTransient<MainView>()
+                .AddTransient<MainWindow>()
+                .BuildServiceProvider();
         }
 
         /// <summary>
@@ -41,12 +55,14 @@ namespace Simulator.NET.WinUI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
+            m_window = Services.GetRequiredService<MainWindow>();
             m_window.Activate();
         }
 
         private Window m_window;
 
+        public IServiceProvider Services { get; init; }
+        public new static App Current => (App)Application.Current;
         //internal VMLocator VMLocator { get; } = new VMLocator();
     }
 }

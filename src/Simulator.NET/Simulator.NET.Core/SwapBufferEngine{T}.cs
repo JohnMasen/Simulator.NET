@@ -43,30 +43,36 @@ namespace Simulator.NET.Core
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void Step()
         {
+            tryInit();
             transformProcessor.BeforeProcess(device);
             foreach (var item in PostProcessors)
             {
                 item.BeforeProcess(device);
             }
+            Stopwatch sw = Stopwatch.StartNew();
             using (var ctx = device.CreateComputeContext())
             {
+                
                 transformProcessor.Process(in ctx, buffers.source, buffers.target);
                 foreach (var item in PostProcessors)
                 {
                     item.Process(in ctx, buffers.target);
                 }
             }
+            sw.Stop();
             transformProcessor.AfterProcess(device);
             foreach (var item in PostProcessors)
             {
                 item.AfterProcess(device);
             }
             swapBuffer();
+            Debug.WriteLine($"process={sw.ElapsedMilliseconds} ms");
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public async Task StepAsync()
         {
             //var shader = createShader(buffers.source, buffers.target);
+            tryInit();
             await using (var ctx = device.CreateComputeContext())
             {
                 transformProcessor.Process(in ctx, buffers.source, buffers.target);
@@ -100,7 +106,13 @@ namespace Simulator.NET.Core
             if (isInitNeeded)
             {
                 transformProcessor.Init(device,size);
+                foreach (var item in PostProcessors)
+                {
+                    item.Init(device, size);
+                }
             }
+            
+            isInitNeeded = false;
         }
     }
 }
