@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Simulator.NET.WinUI.View;
+using Simulator.NET.WinUI.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;

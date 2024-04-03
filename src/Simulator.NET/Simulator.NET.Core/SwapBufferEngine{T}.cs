@@ -18,47 +18,64 @@ namespace Simulator.NET.Core
     {
         GraphicsDevice device;
         (ReadWriteBuffer<TData> source, ReadWriteBuffer<TData> target) buffers;
-        private Size size;
-        public List<IPostProcessor<TData>> PostProcessors { get; } = new();
+        //private Size size;
+        private IEnumerable<IPostProcessor<TData>> PostProcessors;
         private ITransformProcessor<TData> transformProcessor;
-        private bool isInitNeeded = true;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        public SwapBufferEngine(GraphicsDevice device, Size bufferSize, Memory<TData> data, ITransformProcessor<TData> processor)
+        public SwapBufferEngine(GraphicsDevice device, Size bufferSize, Memory<TData> data, ITransformProcessor<TData> processor, IEnumerable<IPostProcessor<TData>> postProcessors)
         {
+            ArgumentNullException.ThrowIfNull(data, nameof(data));
+            ArgumentNullException.ThrowIfNull(processor, nameof(processor));
+            transformProcessor = processor;
+            PostProcessors = postProcessors ?? new List<IPostProcessor<TData>>();
+
             this.device = device;
             buffers.source = device.AllocateReadWriteBuffer<TData>(data.Length);
             buffers.target = device.AllocateReadWriteBuffer<TData>(data.Length);
             buffers.target.CopyFrom(data.Span);
             buffers.source.CopyFrom(buffers.target);
-            size = bufferSize;
-            transformProcessor=processor;
+
+            transformProcessor.Init(device, bufferSize);
+            foreach (var item in PostProcessors)
+            {
+                item.Init(device, bufferSize);
+            }
+            Step(true);
+            //size = bufferSize;
+            //transformProcessor=processor;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         private void swapBuffer()
         {
             buffers = (buffers.target, buffers.source);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        public void Step()
+        public void Step(bool skipTransform = false)
         {
-            tryInit();
             transformProcessor.BeforeProcess(device);
             foreach (var item in PostProcessors)
             {
                 item.BeforeProcess(device);
             }
             Stopwatch sw = Stopwatch.StartNew();
+
             using (var ctx = device.CreateComputeContext())
             {
-                
-                transformProcessor.Process(in ctx, buffers.source, buffers.target);
+                if (!skipTransform)
+                {
+                    transformProcessor.Process(in ctx, buffers.source, buffers.target);
+                    ctx.Barrier(buffers.target);
+                }
+                else
+                {
+                    buffers.source.CopyTo(buffers.target);//bypass process, simply copy source to target
+                }
                 foreach (var item in PostProcessors)
                 {
                     item.Process(in ctx, buffers.target);
+                    //ctx.Barrier(buffers.target);
                 }
             }
+
             sw.Stop();
             transformProcessor.AfterProcess(device);
             foreach (var item in PostProcessors)
@@ -68,32 +85,50 @@ namespace Simulator.NET.Core
             swapBuffer();
             Debug.WriteLine($"process={sw.ElapsedMilliseconds} ms");
         }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        public async Task StepAsync()
+        public async Task StepAsync(bool skipTransform=false)
         {
-            //var shader = createShader(buffers.source, buffers.target);
-            tryInit();
+            transformProcessor.BeforeProcess(device);
+            foreach (var item in PostProcessors)
+            {
+                item.BeforeProcess(device);
+            }
+            Stopwatch sw = Stopwatch.StartNew();
+
             await using (var ctx = device.CreateComputeContext())
             {
-                transformProcessor.Process(in ctx, buffers.source, buffers.target);
+                if (!skipTransform)
+                {
+                    transformProcessor.Process(in ctx, buffers.source, buffers.target);
+                    ctx.Barrier(buffers.target);
+                }
+                else
+                {
+                    buffers.source.CopyTo(buffers.target);//bypass process, simply copy source to target
+                }
                 foreach (var item in PostProcessors)
                 {
                     item.Process(in ctx, buffers.target);
+                    ctx.Barrier(buffers.target);
                 }
             }
+
+            sw.Stop();
+            transformProcessor.AfterProcess(device);
+            foreach (var item in PostProcessors)
+            {
+                item.AfterProcess(device);
+            }
             swapBuffer();
+            Debug.WriteLine($"process async={sw.ElapsedMilliseconds} ms");
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void GetOutput(Memory<TData> outputBuffer)
         {
             buffers.target.CopyTo(outputBuffer.Span);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public ReadWriteBuffer<TData> GetOutputBuffer() => buffers.target;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public void WithOutput(Action<Memory<TData>> outputProcessingCallback)
         {
             using var tmp = MemoryPool<TData>.Shared.Rent(buffers.target.Length);
@@ -101,18 +136,6 @@ namespace Simulator.NET.Core
             outputProcessingCallback(tmp.Memory.Slice(buffers.target.Length));
         }
 
-        private void tryInit()
-        {
-            if (isInitNeeded)
-            {
-                transformProcessor.Init(device,size);
-                foreach (var item in PostProcessors)
-                {
-                    item.Init(device, size);
-                }
-            }
-            
-            isInitNeeded = false;
-        }
+
     }
 }

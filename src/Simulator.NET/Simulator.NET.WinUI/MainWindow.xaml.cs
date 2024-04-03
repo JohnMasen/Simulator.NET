@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Simulator.NET.WinUI.View;
+using Simulator.NET.WinUI.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,10 +27,10 @@ namespace Simulator.NET.WinUI
     public sealed partial class MainWindow : Window
     {
         public MainView ViewModel { get; private set; }
-        public MainWindow(MainView mainView)
+        public MainWindow(MainView view)
         {
             this.InitializeComponent();
-            this.ViewModel = mainView;
+            this.ViewModel = view;
             //ViewModel=App.Current.Services.GetService<MainView>();
         }
 

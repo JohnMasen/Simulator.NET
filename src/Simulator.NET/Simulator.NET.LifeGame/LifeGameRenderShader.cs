@@ -16,11 +16,6 @@ namespace Simulator.NET.LifeGame
             int idx = ThreadIds.Y * width + ThreadIds.X;
             float4 result = new Float4(1, 0, 0, 0);
             var item = buffer[idx];
-            //if (item.ContinuLifeCount <= 5)
-            //{
-            //    result[3] = Hlsl.Min(buffer[idx].LifeCount / 255f, 1f);
-            //}
-
             result = buffer[idx].Value == 1 ? aliveCellColor : deadCellColor;
             output[idx] = result;
         }

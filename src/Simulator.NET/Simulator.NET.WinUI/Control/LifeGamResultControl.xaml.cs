@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Simulator.NET.Core;
 using Simulator.NET.LifeGame;
 using Simulator.NET.WinUI.Core;
+using Simulator.NET.WinUI.Helper;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -58,9 +59,14 @@ namespace Simulator.NET.WinUI.Control
         public LifeGamResultControl()
         {
             this.InitializeComponent();
+            this.Unloaded += LifeGamResultControl_Unloaded;
         }
 
-    
+        private void LifeGamResultControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            canvas1.RemoveFromVisualTree();
+            canvas1 = null;
+        }
 
         private void CanvasControl_CreateResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {
@@ -83,25 +89,22 @@ namespace Simulator.NET.WinUI.Control
         public void Process(ref readonly ComputeContext ctx, ReadWriteBuffer<LifeGameItem> data)
         {
             var shader = new LifeGameRenderShader(data, texture, backBufferSize.Width, alive, dead);
-            ctx.Barrier(data);
+            //ctx.Barrier(data);
             ctx.For(backBufferSize.Width, backBufferSize.Height, shader);
             //ctx.Barrier(texture);
         }
 
         public void Init(GraphicsDevice device,Size size)
         {
-            
-            DispatcherQueue.TryEnqueue(() =>
+            DispatcherQueue.RunAndWait(() =>
             {
                 canvas1.Width = size.Width;
                 canvas1.Height = size.Height;
-                aseResize.Set();
             });
-            aseResize.WaitOne();
-            
             backBufferSize = size;
             backBuffer = new byte[size.Width * size.Height * Marshal.SizeOf<float4>()];
-            bitmap = CanvasBitmap.CreateFromBytes(canvas1, backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
+            //TODO:possible bug, CreateFromBytes may called before canvas device is initlized
+            bitmap = CanvasBitmap.CreateFromBytes(CanvasDevice.GetSharedDevice(), backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
             texture = device.AllocateReadWriteBuffer<float4>(size.Width * size.Height);
             output = device.AllocateReadBackBuffer<float4>(size.Width * size.Height);
         }

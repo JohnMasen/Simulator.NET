@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Simulator.NET.WinUI.Control;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Simulator.NET.WinUI.View
 {
@@ -27,27 +28,13 @@ namespace Simulator.NET.WinUI.View
     {
         SwapBufferEngine<LifeGameItem> lifegameEngine;
         public IEnumerable<GraphicsDevice> Devices => GraphicsDevice.EnumerateDevices();
-
-        private GraphicsDevice device;
-        
-        public GraphicsDevice SelectedDevice {
-            get 
-            {
-                return device;
-            } 
-            set 
-            {
-                if (SetProperty(ref device, value))
-                {
-                    InitEngine();
-                }
-;            } 
-        }
+        [ObservableProperty]
+        private GraphicsDevice selectedDevice;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsDeviceIdle))]
         private bool isDeviceBusy = false;
-        public bool IsDeviceIdle => !isDeviceBusy;
+        public bool IsDeviceIdle => !IsDeviceBusy;
         [ObservableProperty]
         private int gridWidth = 4096;
         [ObservableProperty]
@@ -59,7 +46,7 @@ namespace Simulator.NET.WinUI.View
         CanvasBitmap bitmap;
         byte[] displayBuffer;
         LifeGameRender render;
-
+        private bool isInitRequired = true;
         public MainView()
         {
             SelectedDevice = GraphicsDevice.GetDefault();
@@ -74,6 +61,7 @@ namespace Simulator.NET.WinUI.View
         [RelayCommand]
         public void Play()
         {
+            tryInit();
             FrameCount = 0;
             IsDeviceBusy = true;
             doStop();
@@ -85,6 +73,7 @@ namespace Simulator.NET.WinUI.View
                 {
                     lifegameEngine.Step();
                     Task.Delay(1).Wait();
+                    FrameCount++;
                 }
             }, cts.Token);
 
@@ -93,6 +82,7 @@ namespace Simulator.NET.WinUI.View
         [RelayCommand(CanExecute = "IsDeviceIdle")]
         public void Step()
         {
+            tryInit();
             IsDeviceBusy = true;
             lifegameEngine.Step();
             IsDeviceBusy = false;
@@ -103,8 +93,16 @@ namespace Simulator.NET.WinUI.View
             doStop();
             cts = null;
             var raw = Random.Shared.GetItems<LifeGameItem>(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, GridWidth * GridHeight);
-            lifegameEngine = new SwapBufferEngine<LifeGameItem>(SelectedDevice, new Size(GridWidth, GridHeight), raw, new LifeGameProcessor());
-            lifegameEngine.PostProcessors.Add(resultControl);
+            lifegameEngine = SwapBufferEngineBuilder.Create<LifeGameItem>(opt =>
+            {
+                opt.Device = SelectedDevice;
+                opt.BufferSize = new Size(GridWidth, GridHeight);
+                opt.Data = raw;
+                opt.Processor = new LifeGameProcessor();
+                opt.PostProcessors.Add(resultControl);
+            });
+            //lifegameEngine = new SwapBufferEngine<LifeGameItem>(SelectedDevice, new Size(GridWidth, GridHeight), raw, new LifeGameProcessor(),new List<IPostProcessor<LifeGameItem>>() { resultControl});
+            //lifegameEngine.PostProcessors.Add(resultControl);
             FrameCount = 0;
         }
 
@@ -127,6 +125,15 @@ namespace Simulator.NET.WinUI.View
         {
             cts?.Cancel();
             cts = null;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void tryInit()
+        {
+            if (isInitRequired)
+            {
+                InitEngine();
+            }
+            isInitRequired = false;
         }
         
     }
