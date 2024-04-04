@@ -22,9 +22,9 @@ using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Simulator.NET.WinUI.View
+namespace Simulator.NET.WinUI.ViewModel
 {
-    public partial class MainView : ObservableObject, IPlayableControl, IRenderControlProvider
+    public partial class MainViewModel : ObservableObject, IPlayableControl, IRenderControlProvider
     {
         SwapBufferEngine<LifeGameItem> lifegameEngine;
         public IEnumerable<GraphicsDevice> Devices => GraphicsDevice.EnumerateDevices();
@@ -47,7 +47,7 @@ namespace Simulator.NET.WinUI.View
         byte[] displayBuffer;
         LifeGameRender render;
         private bool isInitRequired = true;
-        public MainView()
+        public MainViewModel()
         {
             SelectedDevice = GraphicsDevice.GetDefault();
         }

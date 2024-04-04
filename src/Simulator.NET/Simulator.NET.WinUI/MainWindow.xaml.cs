@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Simulator.NET.WinUI.View;
 using Simulator.NET.WinUI.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -26,24 +25,15 @@ namespace Simulator.NET.WinUI
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        public MainView ViewModel { get; private set; }
-        public MainWindow(MainView view)
+        public MainViewModel ViewModel { get; private set; }
+        public MainWindow(MainViewModel view)
         {
             this.InitializeComponent();
             this.ViewModel = view;
-            //ViewModel=App.Current.Services.GetService<MainView>();
         }
 
         
 
-        //private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
-        //{
-        //    ViewModel.OnDraw(sender, args);
-        //}
-
-        //private void myButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    myButton.Content = "Clicked";
-        //}
+  
     }
 }

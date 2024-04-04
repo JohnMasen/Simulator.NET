@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
-using Simulator.NET.WinUI.View;
 using Simulator.NET.WinUI.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -45,7 +44,7 @@ namespace Simulator.NET.WinUI
         {
             
             return new ServiceCollection()
-                .AddTransient<MainView>()
+                .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
                 .BuildServiceProvider();
         }
