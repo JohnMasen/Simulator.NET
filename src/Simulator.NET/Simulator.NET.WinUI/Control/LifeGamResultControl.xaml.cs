@@ -40,63 +40,23 @@ namespace Simulator.NET.WinUI.Control
     [INotifyPropertyChanged]
     public sealed partial class LifeGamResultControl : UserControl,IPostProcessor<LifeGameItem>
     {
-        #region Canvas Variables
-        CanvasBitmap bitmap;
-        byte[] backBuffer;
-        #endregion
-
-        #region LifeGameRender variables
-        private readonly float4 alive = new(0,0,0,1);
-        private readonly float4 dead = new(1,1,1,1);
-        private ReadWriteTexture2D<Bgra32, float4> texture;
-        //ReadWriteBuffer<int> texture;
-        public ReadBackBuffer<int> output;
-        #endregion
-
-        private Size backBufferSize;
-        AutoResetEvent aseResize = new(false);
         [ObservableProperty]
         WriteableBitmap bitmapOutput;
-        //public LifeGameRender Render { get; set; }
 
+        private LifeGameRender<Bgra32> render;
 
 
         public LifeGamResultControl()
         {
             this.InitializeComponent();
-            this.Unloaded += LifeGamResultControl_Unloaded;
         }
 
-        private void LifeGamResultControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            //canvas1.RemoveFromVisualTree();
-            //canvas1 = null;
-        }
 
-        private void CanvasControl_CreateResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
-        {
-
-        }
-
-        private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
-        {
-            if (output == null)//not initlized
-            {
-                Debug.WriteLine("skipped drawing");
-                return;
-            }
-            //var sw = Stopwatch.StartNew();
-            
-            args.DrawingSession.DrawImage(bitmap, new Windows.Foundation.Rect(0, 0, sender.ActualWidth, sender.ActualHeight));
-            
-        }
+        
 
         public void Process(ref readonly ComputeContext ctx, ReadWriteBuffer<LifeGameItem> data)
         {
-            var shader = new LifeGameRenderShader(data, texture, backBufferSize.Width, alive, dead);
-            //ctx.Barrier(data);
-            ctx.For(backBufferSize.Width, backBufferSize.Height, shader);
-            //ctx.Barrier(texture);
+            render.Process(in ctx, data);
         }
 
         public void Init(GraphicsDevice device,Size size)
@@ -106,39 +66,27 @@ namespace Simulator.NET.WinUI.Control
                 imgOutput.Width = size.Width;
                 imgOutput.Height = size.Height;
             });
-            backBufferSize = size;
-            backBuffer = new byte[size.Width * size.Height * Marshal.SizeOf<int>()];
-            //TODO:possible bug, CreateFromBytes may called before canvas device is initlized
-            //bitmap = CanvasBitmap.CreateFromBytes(CanvasDevice.GetSharedDevice(), backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
-            texture = device.AllocateReadWriteTexture2D<Bgra32,float4>(size.Width , size.Height);
-            output = device.AllocateReadBackBuffer<int>(size.Width * size.Height);
+            render = new LifeGameRender<Bgra32>(buffer =>
+            {
+                DispatcherQueue.RunAndWait(() =>
+                {
+                    var bufferBytes = MemoryMarshal.AsBytes(buffer.Span);
+                    BitmapOutput.PixelBuffer.AsStream().Write(bufferBytes);
+                    BitmapOutput.Invalidate();
+                });
+            });
+            render.Init(device, size);
             BitmapOutput = new WriteableBitmap(size.Width, size.Height);
         }
 
         public void BeforeProcess(GraphicsDevice device)
         {
-            //throw new NotImplementedException();
+            render.BeforeProcess(device);
         }
 
         public void AfterProcess(GraphicsDevice device)
-        {   
-            var sw = Stopwatch.StartNew();
-            //output.Span.CopyTo()
-            texture.CopyTo(MemoryMarshal.Cast<byte, Bgra32>(backBuffer.AsMemory().Span));
-            //texture.CopyTo(output);
-            sw.Stop();
-            //MemoryMarshal.AsBytes(output.Span).CopyTo(backBuffer);
-            DispatcherQueue.RunAndWait(() =>
-            {
-                backBuffer.AsBuffer().CopyTo(BitmapOutput.PixelBuffer);
-                BitmapOutput.Invalidate();
-            });
-            
-            
-            //bitmap.SetPixelBytes(backBuffer);
-            //canvas1.Invalidate();
-            
-            Debug.WriteLine($"after process={sw.ElapsedMilliseconds}");
+        {
+            render.AfterProcess(device);
         }
     }
 }
