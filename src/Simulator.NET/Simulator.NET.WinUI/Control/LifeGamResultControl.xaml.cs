@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Simulator.NET.Core;
 using Simulator.NET.LifeGame;
@@ -28,6 +29,7 @@ using System.Threading;
 using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics.Imaging;
 using Size = System.Drawing.Size;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -44,15 +46,18 @@ namespace Simulator.NET.WinUI.Control
         #endregion
 
         #region LifeGameRender variables
-        private readonly float4 alive = new Float4(0, 0, 0, 1);
-        private readonly float4 dead = new Float4(1, 1, 1, 1);
-        ReadWriteBuffer<float4> texture;
-        public ReadBackBuffer<float4> output;
+        private readonly float4 alive = new(0,0,0,1);
+        private readonly float4 dead = new(1,1,1,1);
+        private ReadWriteTexture2D<Bgra32, float4> texture;
+        //ReadWriteBuffer<int> texture;
+        public ReadBackBuffer<int> output;
         #endregion
 
         private Size backBufferSize;
         AutoResetEvent aseResize = new(false);
-        public LifeGameRender Render { get; set; }
+        [ObservableProperty]
+        WriteableBitmap bitmapOutput;
+        //public LifeGameRender Render { get; set; }
 
 
 
@@ -64,8 +69,8 @@ namespace Simulator.NET.WinUI.Control
 
         private void LifeGamResultControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            canvas1.RemoveFromVisualTree();
-            canvas1 = null;
+            //canvas1.RemoveFromVisualTree();
+            //canvas1 = null;
         }
 
         private void CanvasControl_CreateResources(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
@@ -98,15 +103,16 @@ namespace Simulator.NET.WinUI.Control
         {
             DispatcherQueue.RunAndWait(() =>
             {
-                canvas1.Width = size.Width;
-                canvas1.Height = size.Height;
+                imgOutput.Width = size.Width;
+                imgOutput.Height = size.Height;
             });
             backBufferSize = size;
-            backBuffer = new byte[size.Width * size.Height * Marshal.SizeOf<float4>()];
+            backBuffer = new byte[size.Width * size.Height * Marshal.SizeOf<int>()];
             //TODO:possible bug, CreateFromBytes may called before canvas device is initlized
-            bitmap = CanvasBitmap.CreateFromBytes(CanvasDevice.GetSharedDevice(), backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
-            texture = device.AllocateReadWriteBuffer<float4>(size.Width * size.Height);
-            output = device.AllocateReadBackBuffer<float4>(size.Width * size.Height);
+            //bitmap = CanvasBitmap.CreateFromBytes(CanvasDevice.GetSharedDevice(), backBuffer, size.Width, size.Height, Windows.Graphics.DirectX.DirectXPixelFormat.R32G32B32A32Float); ;
+            texture = device.AllocateReadWriteTexture2D<Bgra32,float4>(size.Width , size.Height);
+            output = device.AllocateReadBackBuffer<int>(size.Width * size.Height);
+            BitmapOutput = new WriteableBitmap(size.Width, size.Height);
         }
 
         public void BeforeProcess(GraphicsDevice device)
@@ -118,11 +124,19 @@ namespace Simulator.NET.WinUI.Control
         {   
             var sw = Stopwatch.StartNew();
             //output.Span.CopyTo()
-            texture.CopyTo(output);
+            texture.CopyTo(MemoryMarshal.Cast<byte, Bgra32>(backBuffer.AsMemory().Span));
+            //texture.CopyTo(output);
             sw.Stop();
-            MemoryMarshal.AsBytes(output.Span).CopyTo(backBuffer);
-            bitmap.SetPixelBytes(backBuffer);
-            canvas1.Invalidate();
+            //MemoryMarshal.AsBytes(output.Span).CopyTo(backBuffer);
+            DispatcherQueue.RunAndWait(() =>
+            {
+                backBuffer.AsBuffer().CopyTo(BitmapOutput.PixelBuffer);
+                BitmapOutput.Invalidate();
+            });
+            
+            
+            //bitmap.SetPixelBytes(backBuffer);
+            //canvas1.Invalidate();
             
             Debug.WriteLine($"after process={sw.ElapsedMilliseconds}");
         }

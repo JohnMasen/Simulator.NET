@@ -10,6 +10,8 @@
     mc:Ignorable="d">
 
     <ScrollView ZoomMode="Enabled">
-        <canvas:CanvasControl x:Name="canvas1" CreateResources="CanvasControl_CreateResources" Draw="CanvasControl_Draw" ClearColor="White"/>
+        <!--<canvas:CanvasControl x:Name="canvas1" CreateResources="CanvasControl_CreateResources" Draw="CanvasControl_Draw" ClearColor="White"/>-->
+        <Image x:Name="imgOutput" Source="{x:Bind BitmapOutput,Mode=OneWay}"/>
     </ScrollView>
+    
 </UserControl>

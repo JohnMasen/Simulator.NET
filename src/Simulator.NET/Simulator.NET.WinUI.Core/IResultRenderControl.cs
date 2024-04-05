@@ -9,7 +9,7 @@ namespace Simulator.NET.WinUI.Core
 {
     public interface IRenderControlProvider
     {
-        public string DisplayName { get;  }
+        //public string DisplayName { get;  }
         //public   { get; set; }
         public UserControl UIContent { get; }
     }

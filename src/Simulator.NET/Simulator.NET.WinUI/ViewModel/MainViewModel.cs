@@ -21,6 +21,7 @@ using Simulator.NET.WinUI.Control;
 using Microsoft.UI.Xaml.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Simulator.NET.WinUI.ViewModel
 {
@@ -45,12 +46,15 @@ namespace Simulator.NET.WinUI.ViewModel
         CancellationTokenSource cts;
         CanvasBitmap bitmap;
         byte[] displayBuffer;
-        LifeGameRender render;
+        //LifeGameRender render;
         private bool isInitRequired = true;
         public MainViewModel()
         {
             SelectedDevice = GraphicsDevice.GetDefault();
         }
+
+        [ObservableProperty]
+        private WriteableBitmap outputBitmap;
 
         private LifeGamResultControl resultControl = new();
 
@@ -104,6 +108,7 @@ namespace Simulator.NET.WinUI.ViewModel
             //lifegameEngine = new SwapBufferEngine<LifeGameItem>(SelectedDevice, new Size(GridWidth, GridHeight), raw, new LifeGameProcessor(),new List<IPostProcessor<LifeGameItem>>() { resultControl});
             //lifegameEngine.PostProcessors.Add(resultControl);
             FrameCount = 0;
+            outputBitmap = new WriteableBitmap(GridWidth, GridHeight);
         }
 
         [RelayCommand]
