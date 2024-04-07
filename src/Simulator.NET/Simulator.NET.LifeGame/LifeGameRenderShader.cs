@@ -10,12 +10,12 @@ namespace Simulator.NET.LifeGame
 {
     [ThreadGroupSize(DefaultThreadGroupSizes.XY)]
     [GeneratedComputeShaderDescriptor]
-    public readonly partial struct LifeGameRenderShader(ReadWriteBuffer<LifeGameItem> buffer, IReadWriteNormalizedTexture2D<float4> o, int width, float4 aliveCellColor, float4 deadCellColor) : IComputeShader
+    public readonly partial struct LifeGameRenderShader(ReadWriteBuffer<LifeGameItem> buffer, IReadWriteNormalizedTexture2D<float4> output, int width, float4 aliveCellColor, float4 deadCellColor) : IComputeShader
     {
         public void Execute()
         {
             int idx = ThreadIds.Y * width + ThreadIds.X;
-            o[ThreadIds.XY] = buffer[idx].Value == 1 ? aliveCellColor : deadCellColor;
+            output[ThreadIds.XY] = buffer[idx].Value == 1 ? aliveCellColor : deadCellColor;
         }
     }
 }

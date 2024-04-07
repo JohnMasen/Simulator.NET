@@ -24,7 +24,6 @@
             <TextBlock Text="{x:Bind ViewModel.SelectedDevice.IsHardwareAccelerated}"/>
         </StackPanel>
         <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.UIContent}"/>
-
     </Grid>
 
 

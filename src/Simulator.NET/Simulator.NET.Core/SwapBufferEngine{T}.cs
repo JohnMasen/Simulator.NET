@@ -72,7 +72,6 @@ namespace Simulator.NET.Core
                 foreach (var item in PostProcessors)
                 {
                     item.Process(in ctx, buffers.target);
-                    //ctx.Barrier(buffers.target);
                 }
             }
 

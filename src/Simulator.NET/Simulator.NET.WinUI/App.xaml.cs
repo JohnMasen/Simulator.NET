@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -34,19 +35,17 @@ namespace Simulator.NET.WinUI
         /// </summary>
         public App()
         {
-            Services = initService();
-
+            initService();
 
             this.InitializeComponent();
             
         }
-        private IServiceProvider initService()
+        private void initService()
         {
-            
-            return new ServiceCollection()
+            Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
-                .BuildServiceProvider();
+                .BuildServiceProvider());
         }
 
         /// <summary>
@@ -55,14 +54,11 @@ namespace Simulator.NET.WinUI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = Services.GetRequiredService<MainWindow>();
+            m_window = Ioc.Default.GetRequiredService<MainWindow>();
             m_window.Activate();
         }
 
         private Window m_window;
 
-        public IServiceProvider Services { get; init; }
-        public new static App Current => (App)Application.Current;
-        //internal VMLocator VMLocator { get; } = new VMLocator();
     }
 }

@@ -44,9 +44,6 @@ namespace Simulator.NET.WinUI.ViewModel
         int frameCount = 0;
 
         CancellationTokenSource cts;
-        CanvasBitmap bitmap;
-        byte[] displayBuffer;
-        //LifeGameRender render;
         private bool isInitRequired = true;
         public MainViewModel()
         {
@@ -96,7 +93,7 @@ namespace Simulator.NET.WinUI.ViewModel
         {
             doStop();
             cts = null;
-            var raw = Random.Shared.GetItems<LifeGameItem>(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, GridWidth * GridHeight);
+            var raw = Random.Shared.GetItems(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, GridWidth * GridHeight);
             lifegameEngine = SwapBufferEngineBuilder.Create<LifeGameItem>(opt =>
             {
                 opt.Device = SelectedDevice;

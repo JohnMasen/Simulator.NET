@@ -74,9 +74,10 @@ namespace Simulator.NET.WinUI.Control
                     BitmapOutput.PixelBuffer.AsStream().Write(bufferBytes);
                     BitmapOutput.Invalidate();
                 });
-            });
+            },new(0,0,0,1),new(1,1,1,1));
             render.Init(device, size);
             BitmapOutput = new WriteableBitmap(size.Width, size.Height);
+            RenderTargetBitmap bb = new RenderTargetBitmap();
         }
 
         public void BeforeProcess(GraphicsDevice device)
