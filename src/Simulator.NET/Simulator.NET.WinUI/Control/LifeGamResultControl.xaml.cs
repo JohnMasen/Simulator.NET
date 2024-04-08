@@ -61,6 +61,7 @@ namespace Simulator.NET.WinUI.Control
 
         public void Init(GraphicsDevice device,Size size)
         {
+            BitmapOutput = new WriteableBitmap(size.Width, size.Height);
             DispatcherQueue.RunAndWait(() =>
             {
                 imgOutput.Width = size.Width;
@@ -76,8 +77,7 @@ namespace Simulator.NET.WinUI.Control
                 });
             },new(0,0,0,1),new(1,1,1,1));
             render.Init(device, size);
-            BitmapOutput = new WriteableBitmap(size.Width, size.Height);
-            RenderTargetBitmap bb = new RenderTargetBitmap();
+            
         }
 
         public void BeforeProcess(GraphicsDevice device)

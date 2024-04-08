@@ -39,7 +39,7 @@ namespace Simulator.NET.Core
             {
                 item.Init(device, bufferSize);
             }
-            Step(true);
+            Step(true);//trigger a fake run to init post processos get the initial data
             //size = bufferSize;
             //transformProcessor=processor;
         }
@@ -64,10 +64,6 @@ namespace Simulator.NET.Core
                 {
                     transformProcessor.Process(in ctx, buffers.source, buffers.target);
                     ctx.Barrier(buffers.target);
-                }
-                else
-                {
-                    buffers.source.CopyTo(buffers.target);//bypass process, simply copy source to target
                 }
                 foreach (var item in PostProcessors)
                 {
