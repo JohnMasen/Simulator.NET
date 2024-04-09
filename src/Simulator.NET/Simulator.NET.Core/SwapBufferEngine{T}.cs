@@ -39,7 +39,7 @@ namespace Simulator.NET.Core
             {
                 item.Init(device, bufferSize);
             }
-            Step(true);//trigger a fake run to init post processos get the initial data
+            StepInternal(true);//trigger a fake run to init post processos get the initial data
             //size = bufferSize;
             //transformProcessor=processor;
         }
@@ -48,8 +48,12 @@ namespace Simulator.NET.Core
         {
             buffers = (buffers.target, buffers.source);
         }
+        public void Step()
+        {
+            StepInternal(false);
+        }
 
-        public void Step(bool skipTransform = false)
+        private void StepInternal(bool skipTransform = false)
         {
             transformProcessor.BeforeProcess(device);
             foreach (var item in PostProcessors)
