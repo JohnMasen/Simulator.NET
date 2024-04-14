@@ -8,6 +8,8 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Simulator.NET.LifeGame.WinUI;
+using Simulator.NET.WinUI.Core;
 using Simulator.NET.WinUI.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -38,13 +40,14 @@ namespace Simulator.NET.WinUI
             initService();
 
             this.InitializeComponent();
-            
+            //var x=Worms.WormItem.CreateRandomWorms(1, new(50, 50));
         }
         private void initService()
         {
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
+                .AddTransient<IGameProvider,LifaGameGameProvider>()
                 .BuildServiceProvider());
         }
 

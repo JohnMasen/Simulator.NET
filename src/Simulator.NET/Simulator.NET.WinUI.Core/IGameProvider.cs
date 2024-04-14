@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace Simulator.NET.WinUI.Core
 {
-    public interface IPlayableControl
+    public interface IGameProvider:IPlayableControl
     {
-        void Play();
-        void Stop();
-        void Reset();
-        void Step();
+        public UserControl ResultControl { get; }
     }
 }

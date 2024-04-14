@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simulator.NET.WinUI.Core
+namespace Simulator.NET.Core
 {
-    public interface IPlayableControl
+    public interface ISession
     {
-        void Play();
-        void Stop();
-        void Reset();
         void Step();
     }
 }

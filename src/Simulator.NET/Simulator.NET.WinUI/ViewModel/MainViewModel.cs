@@ -50,8 +50,8 @@ namespace Simulator.NET.WinUI.ViewModel
             SelectedDevice = GraphicsDevice.GetDefault();
         }
 
-        [ObservableProperty]
-        private WriteableBitmap outputBitmap;
+        //[ObservableProperty]
+        //private WriteableBitmap outputBitmap;
 
         private LifeGamResultControl resultControl = new();
 
@@ -105,7 +105,7 @@ namespace Simulator.NET.WinUI.ViewModel
             //lifegameEngine = new SwapBufferEngine<LifeGameItem>(SelectedDevice, new Size(GridWidth, GridHeight), raw, new LifeGameProcessor(),new List<IPostProcessor<LifeGameItem>>() { resultControl});
             //lifegameEngine.PostProcessors.Add(resultControl);
             FrameCount = 0;
-            outputBitmap = new WriteableBitmap(GridWidth, GridHeight);
+            //outputBitmap = new WriteableBitmap(GridWidth, GridHeight);
         }
 
         [RelayCommand]

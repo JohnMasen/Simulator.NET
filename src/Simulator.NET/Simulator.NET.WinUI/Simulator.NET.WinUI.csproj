@@ -31,7 +31,7 @@
     <PackageReference Include="ComputeSharp" Version="3.0.0-preview2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240404000" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
@@ -46,8 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simulator.NET.Core\Simulator.NET.Core.csproj" />
+    <ProjectReference Include="..\Simulator.NET.LifeGame.WinUI\Simulator.NET.LifeGame.WinUI.csproj" />
     <ProjectReference Include="..\Simulator.NET.LifeGame\Simulator.NET.LifeGame.csproj" />
     <ProjectReference Include="..\Simulator.NET.WinUI.Core\Simulator.NET.WinUI.Core.csproj" />
+    <ProjectReference Include="..\Simulator.NET.Worms\Simulator.NET.Worms.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Control\LifeGamResultControl.xaml">
@@ -55,6 +57,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Helper\" />
     <Folder Include="View\" />
   </ItemGroup>
 

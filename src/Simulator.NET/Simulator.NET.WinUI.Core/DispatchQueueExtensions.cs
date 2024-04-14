@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Simulator.NET.WinUI.Helper
+namespace Simulator.NET.WinUI.Core
 {
     public static class DispatchQueueExtensions
     {

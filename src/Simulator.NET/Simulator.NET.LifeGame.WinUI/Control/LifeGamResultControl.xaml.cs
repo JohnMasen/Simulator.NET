@@ -1,8 +1,6 @@
 using ABI.Windows.Foundation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ComputeSharp;
-using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -34,7 +32,7 @@ using Size = System.Drawing.Size;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace Simulator.NET.WinUI.Control
+namespace Simulator.NET.LifeGame.WinUI.Control
 {
     [INotifyPropertyChanged]
     public sealed partial class LifeGamResultControl : UserControl,IPostProcessor<LifeGameItem>
