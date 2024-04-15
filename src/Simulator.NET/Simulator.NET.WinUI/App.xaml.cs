@@ -47,7 +47,7 @@ namespace Simulator.NET.WinUI
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
-                .AddTransient<IGameProvider,LifaGameGameProvider>()
+                .AddTransient<ISimulationProvider,LifeGameSimulationProvider>()
                 .BuildServiceProvider());
         }
 

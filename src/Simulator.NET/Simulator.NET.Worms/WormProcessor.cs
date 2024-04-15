@@ -8,7 +8,7 @@ namespace Simulator.NET.Worms
 {
     public class WormProcessor : ITransformProcessor<WormItem>
     {
-        
+        public bool IsEnabled { get; set; } = true;
         public void AfterProcess(GraphicsDevice device)
         {
             //throw new NotImplementedException();

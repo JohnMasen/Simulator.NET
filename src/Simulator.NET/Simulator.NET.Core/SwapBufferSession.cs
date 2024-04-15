@@ -18,7 +18,7 @@ namespace Simulator.NET.Core
         protected List<IPostProcessor<TData>> PostProcessors = new List<IPostProcessor<TData>>();
         private ReadBackBuffer<TData>? readBack;
         private object syncLock = new object();
-        protected SwapBufferSession(GraphicsDevice device, Size bufferSize,ReadOnlySpan<TData> inputData,ITransformProcessor<TData> processor,IEnumerable<IPostProcessor<TData>> postProcessors) 
+        public SwapBufferSession(GraphicsDevice device, Size bufferSize,ReadOnlySpan<TData> inputData,ITransformProcessor<TData> processor,IEnumerable<IPostProcessor<TData>> postProcessors) 
         {
             Device = device;
             BufferSize = bufferSize;
@@ -26,10 +26,14 @@ namespace Simulator.NET.Core
             Processor.Init(Device,BufferSize);
             buffers.source=Device.AllocateReadWriteBuffer(inputData);
             buffers.target = Device.AllocateReadWriteBuffer(buffers.source); //copy the initial data to output as default output
-            foreach (var p in postProcessors)
+            if (PostProcessors!=null)
             {
-                AttachPostProcessor(p);
+                foreach (var p in postProcessors)
+                {
+                    AttachPostProcessor(p);
+                }
             }
+            stepInternal(true);
         }
         public void Step()
         {
@@ -38,11 +42,16 @@ namespace Simulator.NET.Core
 
         private void stepInternal(bool skipTransform=false)
         {
+            foreach (IProcessor item in PostProcessors)
+            {
+                var x = item.IsEnabled;
+            }
+            var enabledPostProcessors = from p in PostProcessors
+                                        where p.IsEnabled == true
+                                        select p;
             lock (syncLock)
             {
-                var enabledPostProcessors = from p in PostProcessors
-                                            where p.IsEnabled == true
-                                            select p;
+                
                 BeforeStep();
                 if (!skipTransform)
                 {

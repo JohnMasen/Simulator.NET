@@ -15,6 +15,7 @@ namespace Simulator.NET.LifeGame
         readonly int3x3 mask = new(1, 1, 1,
                          1, 0, 1,
                          1, 1, 1);
+        public bool IsEnabled { get; set; } = true;
         public void AfterProcess(GraphicsDevice device)
         {
         }

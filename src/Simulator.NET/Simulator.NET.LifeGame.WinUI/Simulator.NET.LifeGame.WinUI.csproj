@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Control\LifeGamResultControl.xaml" />
+    <None Remove="Control\LifeGameConfigControl.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,9 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="Control\LifeGamResultControl.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
+    <Page Update="Control\LifeGameConfigControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
 </Project>

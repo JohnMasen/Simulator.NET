@@ -12,9 +12,6 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Control\LifeGamResultControl.xaml" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -52,11 +49,7 @@
     <ProjectReference Include="..\Simulator.NET.Worms\Simulator.NET.Worms.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Control\LifeGamResultControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
+    <Folder Include="Control\" />
     <Folder Include="Helper\" />
     <Folder Include="View\" />
   </ItemGroup>

@@ -14,6 +14,7 @@ namespace Simulator.NET.LifeGame
 {
     public class LifeGameRender<T>(Action<Memory<T>>? renderCallback,float4 aliveColor,float4 deadColor) : IPostProcessor<LifeGameItem> where T:unmanaged,IPixel<T,float4>
     {
+        public bool IsEnabled { get; set; } = true;
         public LifeGameRender(Action<Memory<T>>? renderCallback):this(renderCallback, new float4(0,0,0,1),new float4(1,1,1,1))
         {
             
