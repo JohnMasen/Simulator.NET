@@ -9,6 +9,8 @@ namespace Simulator.NET.Core
     public interface ISimulationController
     {
         public event EventHandler<string> OnStop;
+        public event EventHandler<bool> OnRunningStatusChanged;
+        public event EventHandler<ISession> OnStep;
         public ISession Session { get; }
         public bool IsRunning { get; }
         public void Step();

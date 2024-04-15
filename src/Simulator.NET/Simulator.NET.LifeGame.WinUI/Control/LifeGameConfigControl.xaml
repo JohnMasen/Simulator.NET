@@ -6,9 +6,25 @@
     xmlns:local="using:Simulator.NET.LifeGame.WinUI.Control"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cm="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ct="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-    <Grid>
-
-    </Grid>
+    <StackPanel>
+        <cm:SettingsCard Description="The size of LifeGame playground"
+                         Header="GridSize"
+                         HeaderIcon="{ct:FontIcon Glyph=&#xE80A;}"
+                         >
+            <StackPanel>
+                <NumberBox Header="Width" Value="{x:Bind DataGridWidth,Mode=TwoWay}"/>
+                <NumberBox Header="Height" Value="{x:Bind dataGridHeight,Mode=TwoWay}"/>
+            </StackPanel>
+            
+        </cm:SettingsCard>
+        <cm:SettingsCard Header="Graphic Device"
+                         Description="The graphic device to run game"
+                         HeaderIcon="{ct:FontIcon Glyph=&#xE909;}">
+            <ComboBox ItemsSource="{x:Bind DeviceList}" SelectedItem="{x:Bind SelectedDevice,Mode=TwoWay}"/>
+        </cm:SettingsCard>
+    </StackPanel>
 </UserControl>

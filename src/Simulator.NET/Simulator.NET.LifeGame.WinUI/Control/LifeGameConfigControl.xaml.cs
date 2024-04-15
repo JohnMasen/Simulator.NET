@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -33,11 +34,11 @@ namespace Simulator.NET.LifeGame.WinUI.Control
         private GraphicsDevice selectedDevice;
 
 
-        private ObservableCollection<GraphicsDevice> DeviceList { get; init; } 
+        private ImmutableList<GraphicsDevice> DeviceList { get; init; } 
         public LifeGameConfigControl()
         {
             this.InitializeComponent();
-            DeviceList = new ObservableCollection<GraphicsDevice>(GraphicsDevice.EnumerateDevices());
+            DeviceList = ImmutableList.Create([..GraphicsDevice.EnumerateDevices()]);
             SelectedDevice = GraphicsDevice.GetDefault();
         }
     }

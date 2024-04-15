@@ -15,14 +15,22 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <!--<Button VerticalAlignment="Top" x:Name="btnPlay" Command="{x:Bind ViewModel.PlayCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Play</Button>
-            <Button VerticalAlignment="Top" x:Name="btnStep" Command="{x:Bind ViewModel.StepCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Step</Button>-->
+            <Button VerticalAlignment="Top" x:Name="btnPlay" Click="{x:Bind ViewModel.CurrentProvider.SimulationController.Start}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Play</Button>
+            <Button VerticalAlignment="Top" x:Name="btnStep" Click="{x:Bind ViewModel.CurrentProvider.SimulationController.Step}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Step</Button>
             <Button VerticalAlignment="Top" x:Name="btnReset" Click="{x:Bind ViewModel.CurrentProvider.SimulationController.Reset}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}">Reset</Button>
-            <!--<Button VerticalAlignment="Top" x:Name="btnStop" Command="{x:Bind ViewModel.StopCommand}" IsEnabled="{x:Bind ViewModel.IsDeviceBusy,Mode=OneWay}">Stop</Button>-->
+            <Button VerticalAlignment="Top" x:Name="btnStop" Click="{x:Bind ViewModel.CurrentProvider.SimulationController.Stop}" IsEnabled="{x:Bind ViewModel.IsDeviceBusy,Mode=OneWay}">Stop</Button>
             <ComboBox VerticalAlignment="Top" ItemsSource="{x:Bind ViewModel.SimulationProviders}" SelectedItem="{x:Bind Path=ViewModel.CurrentProvider,Mode=TwoWay}" IsEnabled="{x:Bind ViewModel.IsDeviceIdle,Mode=OneWay}"/>
-            <TextBlock Text="{x:Bind ViewModel.SelectedDevice.IsHardwareAccelerated}"/>
+            <!--<TextBlock Text="{x:Bind ViewModel.SelectedDevice.IsHardwareAccelerated}"/>-->
         </StackPanel>
-        <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.CurrentProvider.ResultControl,Mode=OneWay}"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ContentControl Grid.Column="0" Content="{x:Bind ViewModel.CurrentProvider.ConfigPanel,Mode=OneWay}"/>
+            <ContentControl Grid.Column="1" Content="{x:Bind ViewModel.CurrentProvider.ResultControl,Mode=OneWay}"/>
+        </Grid>
+        
     </Grid>
 
 

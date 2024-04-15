@@ -15,17 +15,19 @@ namespace Simulator.NET.Core
 
         public bool IsRunning => isRunning;
 
-        public event EventHandler<string> OnStop;
-        public event EventHandler<ISession> OnStep;
+        public event EventHandler<string>? OnStop;
+        public event EventHandler<ISession>? OnStep;
         private volatile bool initRequired = true;
+        public event EventHandler<bool>? OnRunningStatusChanged;
         private CancellationTokenSource? cts;
         public void Start()
         {
             tryInit();
-
+            doStop();
+            cts = new CancellationTokenSource();
             Task.Run(() =>
             {
-                isRunning = true;
+                changeRunningStatus(true);
                 var token = cts!.Token;
                 try
                 {
@@ -34,7 +36,7 @@ namespace Simulator.NET.Core
                         Session.Step();
                         OnStep?.Invoke(this, Session);
                     }
-                    isRunning = false;
+                    changeRunningStatus(false);
                     OnStop?.Invoke(this, "Run Complete");
                 }
                 catch (TaskCanceledException)
@@ -51,12 +53,12 @@ namespace Simulator.NET.Core
 
         public void Step()
         {
-            isRunning = true;
+            changeRunningStatus(true);
             tryInit();
             Session.Step();
             OnStep?.Invoke(this, Session);
             OnStop?.Invoke(this,"Step Complete");
-            isRunning = false;
+            changeRunningStatus(false);
         }
 
         public void Stop()
@@ -78,14 +80,21 @@ namespace Simulator.NET.Core
         {
             cts?.Cancel();
             cts = null;
-            initRequired = true;
+            //initRequired = true;
         }
 
         public void Reset()
         {
             doStop();
+            initRequired = true;
             tryInit();
 
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void changeRunningStatus(bool value)
+        {
+            isRunning = value;
+            OnRunningStatusChanged?.Invoke(this, value);
         }
     }
 }

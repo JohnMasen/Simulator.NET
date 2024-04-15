@@ -51,6 +51,7 @@
   <ItemGroup>
     <Folder Include="Control\" />
     <Folder Include="Helper\" />
+    <Folder Include="Service\" />
     <Folder Include="View\" />
   </ItemGroup>
 
