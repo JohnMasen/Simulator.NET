@@ -11,6 +11,8 @@ using Microsoft.UI.Xaml.Shapes;
 using Simulator.NET.LifeGame.WinUI;
 using Simulator.NET.WinUI.Core;
 using Simulator.NET.WinUI.ViewModel;
+using Simulator.NET.Worms;
+using Simulator.NET.Worms.WinUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +50,7 @@ namespace Simulator.NET.WinUI
                 .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
                 .AddTransient<ISimulationProvider,LifeGameSimulationProvider>()
+                .AddTransient<ISimulationProvider,WormSimulationProvider>()
                 .BuildServiceProvider());
         }
 

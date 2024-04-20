@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Simulator.NET.Worms
 {
-    public class WormProcessor : ITransformProcessor<WormItem>
+    public class WormProcessor(int itemCount,int2 gridSize,float navigation,float stability) : ITransformProcessor<WormItem>
     {
         public bool IsEnabled { get; set; } = true;
         public void AfterProcess(GraphicsDevice device)
@@ -27,6 +27,9 @@ namespace Simulator.NET.Worms
         public void Process(ref readonly ComputeContext context, ReadWriteBuffer<WormItem> input, ReadWriteBuffer<WormItem> output)
         {
             //throw new NotImplementedException();
+            float seed = Random.Shared.NextSingle();
+            context.For(itemCount, new WormProcessorShader(input, output, gridSize, seed, navigation,stability));
+
         }
 
         

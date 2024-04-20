@@ -28,7 +28,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ContentControl Grid.Column="0" Content="{x:Bind ViewModel.CurrentProvider.ConfigPanel,Mode=OneWay}"/>
-            <ContentControl Grid.Column="1" Content="{x:Bind ViewModel.CurrentProvider.ResultControl,Mode=OneWay}"/>
+            <ContentControl Grid.Column="1" Content="{x:Bind ViewModel.CurrentProvider.ResultControl,Mode=OneWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
         
     </Grid>
