@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,7 +24,7 @@ namespace Simulator.NET.Worms.WinUI.Control
     public sealed partial class WormConfigControl : UserControl
     {
         [ObservableProperty]
-        private int wormsCount = 50000;
+        private int wormsCount = 100;
 
         [ObservableProperty]
         private int gridWidth = 1000;
@@ -31,10 +32,17 @@ namespace Simulator.NET.Worms.WinUI.Control
         private int gridHeight = 1000;
 
         [ObservableProperty]
-        private float navigationCapacity = 0.7f;
+        private float navigationCapacityUI = 70f;
         [ObservableProperty]
-        private float stability = 0.5f;
+        private float stability = 0.8f;
 
+
+        public float NavigationCapacity => NavigationCapacityUI * 0.01f;
+
+        [ObservableProperty]
+        private Color headColorUI = Color.FromArgb(255, 255, 0, 0);
+
+        public float4 HeadColor => new(HeadColorUI.R/255f, HeadColorUI.G/255f, HeadColorUI.B/255f, HeadColorUI.A/255f);
         public WormConfigControl()
         {
             this.InitializeComponent();

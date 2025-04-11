@@ -6,9 +6,51 @@
     xmlns:local="using:Simulator.NET.Worms.WinUI.Control"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cm="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
 
-    <Grid>
+    <StackPanel>
+        <cm:SettingsCard Description="The size of playground"
+                         Header="GridSize">
+            <StackPanel>
+                <NumberBox Header="Width" Text="{x:Bind GridWidth,Mode=TwoWay}"/>
+                <NumberBox Header="Height" Text="{x:Bind GridHeight,Mode=TwoWay}"/>
+            </StackPanel>
+        </cm:SettingsCard>
+        <cm:SettingsCard Description="The total worms in playground"
+                         Header="WormsCount">
+            <NumberBox Text="{x:Bind WormsCount,Mode=TwoWay}"/>
+        </cm:SettingsCard>
+        <cm:SettingsCard Description="Navigation capacity"
+                         Header="NavigationCapcity">
+            <Slider Header="{x:Bind NavigationCapacityUI,Mode=OneWay}" Minimum="0" Maximum="100" SmallChange="1" LargeChange="10" Value="{x:Bind NavigationCapacityUI,Mode=TwoWay}"/>
+        </cm:SettingsCard>
+        <cm:SettingsCard Description="The color of worm header, RIGHT CLICK to change"
+                 Header="HeadColor">
+            <Grid MinWidth="50" MinHeight="50">
+                <Grid.Background>
+                    <SolidColorBrush Color="{x:Bind HeadColorUI,Mode=OneWay}"/>
+                </Grid.Background>
+                <Grid.ContextFlyout>
+                    <Flyout>
+                        <cm:SettingsCard Description="Color of worm header"
+                                         Header="HeadColor">
+                            <ColorPicker
+                                 ColorSpectrumShape="Box"
+                                 IsMoreButtonVisible="False"
+                                 IsColorSliderVisible="True"
+                                 IsColorChannelTextInputVisible="True"
+                                 IsHexInputVisible="False"
+                                 IsAlphaEnabled="False"
+                                 IsAlphaSliderVisible="False"
+                                 IsAlphaTextInputVisible="False" Color="{x:Bind HeadColorUI,Mode=TwoWay}"/>
+                        </cm:SettingsCard>
+                    </Flyout>
 
-    </Grid>
+                </Grid.ContextFlyout>
+            </Grid>
+        </cm:SettingsCard>
+
+
+    </StackPanel>
 </UserControl>

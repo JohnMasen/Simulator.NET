@@ -12,7 +12,7 @@ namespace Simulator.NET.Worms
 {
     [GeneratedComputeShaderDescriptor]
     [ThreadGroupSize(DefaultThreadGroupSizes.X)]
-    public readonly partial struct WormProcessorShader(ReadWriteBuffer<WormItem> source, ReadWriteBuffer<WormItem> target, int2 size, float seed, float navigationCapacity,float stability) : IComputeShader
+    public readonly partial struct WormProcessorShader(ReadWriteBuffer<WormItem> source, ReadWriteBuffer<WormItem> target, int2 size, float seed, float navigationCapacity, float stability) : IComputeShader
     {
         public void Execute()
         {
@@ -20,7 +20,7 @@ namespace Simulator.NET.Worms
 
             if (Hlsl.All(current.HeadPosition == current.TargetPosition))//check if current position is target
             {
-                float randomX = getRandom(seed*current.RandomSeed.X );
+                float randomX = getRandom(seed * current.RandomSeed.X);
                 float randomY = getRandom(seed * current.RandomSeed.Y);
                 current.TargetPosition = new Int2((int)(Hlsl.Round(Hlsl.Lerp(0, size.X - 1, randomX))), (int)(Hlsl.Round(Hlsl.Lerp(0, size.Y - 1, randomY))));
             }
@@ -32,6 +32,32 @@ namespace Simulator.NET.Worms
             neighbours[1] = current.HeadPosition.X < size.X - 1 ? 1 : 0;//can move right
             neighbours[2] = current.HeadPosition.Y > 0 ? 1 : 0; //can move up
             neighbours[3] = current.HeadPosition.Y < size.Y - 1 ? 1 : 0; //can move down
+            for (int i = 0; i < 3; i++)
+            {
+                int2 diff = current.BodyCells[i] - current.HeadPosition;
+                if (diff.X == 0)// at same row
+                {
+                    if (diff.Y == 1)//body is at down side
+                    {
+                        neighbours[3] = 0; //can not move down
+                    }
+                    else if (diff.Y == -1)//body is at up side
+                    {
+                        neighbours[2] = 0;// cannot move up
+                    }
+                }
+                else if (diff.Y == 0)
+                {
+                    if (diff.X == 1)//body is at right
+                    {
+                        neighbours[1] = 0;//cannot move right
+                    }
+                    else if (diff.X == -1) //body is at left
+                    {
+                        neighbours[0] = 0;//cannot move left
+                    }
+                }
+            }
 
             //check target
             neighbours.YX *= getNavigation(current.HeadPosition.X, current.TargetPosition.X);
@@ -74,18 +100,18 @@ namespace Simulator.NET.Worms
         /// <returns></returns>
         private float2 getNavigation(int current, int target)
         {
-            
-            if (current==target)
+            float half = navigationCapacity * 0.5f;
+            if (current == target)
             {
-                return 1-stability;
+                return 1 - stability;
             }
-            if (current<target)
+            if (current < target)
             {
-                return new float2(navigationCapacity, 1 - navigationCapacity);
+                return new float2(0.5f + half, 0.5f - half);
             }
             else
             {
-                return new float2(1-navigationCapacity, navigationCapacity);
+                return new float2(0.5f - half, 0.5f + half);
             }
         }
 

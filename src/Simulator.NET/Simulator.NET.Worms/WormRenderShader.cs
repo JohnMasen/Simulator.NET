@@ -9,15 +9,15 @@ namespace Simulator.NET.Worms
 {
     [GeneratedComputeShaderDescriptor]
     [ThreadGroupSize(DefaultThreadGroupSizes.X)]
-    public readonly partial struct WormRenderShader(ReadWriteBuffer<WormItem> buffer,IReadWriteNormalizedTexture2D<float4> texture,float4 itemColor) : IComputeShader
+    public readonly partial struct WormRenderShader(ReadWriteBuffer<WormItem> buffer,IReadWriteNormalizedTexture2D<float4> texture,float4 bodyColor,float4 headColor) : IComputeShader
     {
         public void Execute()
         {
             WormItem item = buffer[ThreadIds.X];
-            texture[item.HeadPosition] = itemColor;
-            texture[item.BodyCells[0]] = itemColor;
-            texture[item.BodyCells[1]] = itemColor;
-            texture[item.BodyCells[2]] = itemColor;
+            texture[item.HeadPosition] = headColor;
+            texture[item.BodyCells[0]] = bodyColor;
+            texture[item.BodyCells[1]] = bodyColor;
+            texture[item.BodyCells[2]] = bodyColor;
 
         }
 

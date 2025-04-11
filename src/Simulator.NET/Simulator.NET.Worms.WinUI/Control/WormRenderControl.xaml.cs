@@ -31,7 +31,7 @@ namespace Simulator.NET.Worms.WinUI.Control
         WriteableBitmap bitmapOutput;
 
         private WormRender<Bgra32> render;
-
+        public float4 HeadColor;
         bool IProcessor.IsEnabled { get; set; } = true;
 
         public WormRenderControl()
@@ -62,7 +62,7 @@ namespace Simulator.NET.Worms.WinUI.Control
                     BitmapOutput.CopyFromSpan(buffer.Span);
                     BitmapOutput.Invalidate();
                 });
-            },new Bgra32(0,0,0,255),new float4(1,1,1,1));
+            },new Bgra32(0,0,0,255),new float4(1,1,1,1),HeadColor);
             render.Init(device, size);
 
         }

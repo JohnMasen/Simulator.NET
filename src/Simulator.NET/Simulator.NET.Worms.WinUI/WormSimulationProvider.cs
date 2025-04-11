@@ -29,7 +29,7 @@ namespace Simulator.NET.Worms.WinUI
             {
                 Size size = new Size(config.GridWidth, config.GridHeight);
                 var raw = WormItem.CreateRandomWorms(config.WormsCount, size).Span;
-
+                render.HeadColor = config.HeadColor;
                 return new SwapBufferSession<WormItem>(
                     GraphicsDevice.GetDefault(),
                     size,

@@ -12,7 +12,7 @@ using Windows.System.Threading;
 
 namespace Simulator.NET.Worms.WinUI
 {
-    public class WormRender<TPixel>(Action<Memory<TPixel>> renderCallback,TPixel background, float4 itemColor,int frameSkip=0) : TextureRenderBase<WormItem, TPixel> where TPixel : unmanaged, IPixel<TPixel, float4>
+    public class WormRender<TPixel>(Action<Memory<TPixel>> renderCallback,TPixel background, float4 bodyColor,float4 headColor ,int frameSkip=0) : TextureRenderBase<WormItem, TPixel> where TPixel : unmanaged, IPixel<TPixel, float4>
     {
         private int frameToSkip = 0;
         private bool renderResult = false;
@@ -26,7 +26,7 @@ namespace Simulator.NET.Worms.WinUI
             {
                 ctx.Fill(Texture, background);
                 ctx.Barrier(Texture);
-                ctx.For(data.Length, new WormRenderShader(data, Texture, itemColor));
+                ctx.For(data.Length, new WormRenderShader(data, Texture, bodyColor,headColor));
                 frameToSkip = frameSkip;
                 renderResult = true;
             }
