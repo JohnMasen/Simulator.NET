@@ -30,7 +30,7 @@ namespace Simulator.NET.LifeGame.WinUI
             ConfigPanel = configControl;
             SimulationController = new SimulationController(() =>
             {
-                var raw = Random.Shared.GetItems(new LifeGameItem[] { new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 } }, configControl.DataGridWidth * configControl.DataGridHeight);
+                var raw = Random.Shared.GetItems([new LifeGameItem() { Value = 1 }, new LifeGameItem() { Value = 0 }], configControl.DataGridWidth * configControl.DataGridHeight);
                 return new SwapBufferSession<LifeGameItem>(configControl.SelectedDevice,
                     new System.Drawing.Size(configControl.DataGridWidth, configControl.DataGridHeight),
                     raw,
