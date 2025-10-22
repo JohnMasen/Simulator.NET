@@ -2,7 +2,7 @@
 {
     public struct GrayScottItem
     {
-        public float U { get; set; }
-        public float V { get; set; }
+        public float U;
+        public float V;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Simulator.NET.GrayScott.WinUI;
 using Simulator.NET.LifeGame.WinUI;
 using Simulator.NET.WinUI.Core;
 using Simulator.NET.WinUI.ViewModel;
@@ -49,8 +51,9 @@ namespace Simulator.NET.WinUI
             Ioc.Default.ConfigureServices(new ServiceCollection()
                 .AddTransient<MainViewModel>()
                 .AddTransient<MainWindow>()
-                .AddTransient<ISimulationProvider,LifeGameSimulationProvider>()
-                .AddTransient<ISimulationProvider,WormSimulationProvider>()
+                .AddTransient<ISimulationProvider, LifeGameSimulationProvider>()
+                .AddTransient<ISimulationProvider, WormSimulationProvider>()
+                .AddTransient<ISimulationProvider, GrayScottSimulationProvider>()
                 .BuildServiceProvider());
         }
 
@@ -61,6 +64,7 @@ namespace Simulator.NET.WinUI
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = Ioc.Default.GetRequiredService<MainWindow>();
+            PickerHelper.MainWindowID = m_window.AppWindow.Id;
             m_window.Activate();
         }
 

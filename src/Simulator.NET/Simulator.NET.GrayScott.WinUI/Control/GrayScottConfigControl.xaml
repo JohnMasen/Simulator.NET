@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <UserControl
-    x:Class="Simulator.NET.LifeGame.WinUI.Control.LifeGameConfigControl"
+    x:Class="Simulator.NET.GrayScott.WinUI.Control.GrayScottConfigControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Simulator.NET.LifeGame.WinUI.Control"
+    xmlns:local="using:Simulator.NET.GrayScott.WinUI.Control"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cm="using:CommunityToolkit.WinUI.Controls"
@@ -11,20 +11,30 @@
     mc:Ignorable="d">
 
     <StackPanel>
+        <TextBlock>GrayScott Config</TextBlock>
+        <TextBlock>Blue=U Green=V</TextBlock>
+        <Button Command="{x:Bind LoadFromImageCommand}" >Load From Image</Button>
         <cm:SettingsCard Description="The size of LifeGame playground"
-                         Header="GridSize"
-                         HeaderIcon="{ct:FontIcon Glyph=&#xE80A;}"
-                         >
+             Header="GridSize"
+             HeaderIcon="{ct:FontIcon Glyph=&#xE80A;}"
+             >
             <StackPanel>
                 <NumberBox Header="Width" Value="{x:Bind DataGridWidth,Mode=TwoWay}"/>
                 <NumberBox Header="Height" Value="{x:Bind DataGridHeight,Mode=TwoWay}"/>
             </StackPanel>
-            
+
+        </cm:SettingsCard >
+        <cm:SettingsCard Description="GrayScott Settings" Header="GrayScott Settings">
+            <StackPanel>
+                <NumberBox Header="Feed" Value="{x:Bind Feed,Mode=TwoWay}"/>
+                <NumberBox Header="Kill Rate" Value="{x:Bind KillRate,Mode=TwoWay}"/>
+            </StackPanel>
         </cm:SettingsCard>
         <cm:SettingsCard Header="Graphic Device"
-                         Description="The graphic device to run game"
-                         HeaderIcon="{ct:FontIcon Glyph=&#xE909;}">
+             Description="The graphic device to run game"
+             HeaderIcon="{ct:FontIcon Glyph=&#xE909;}">
             <ComboBox ItemsSource="{x:Bind DeviceList}" SelectedItem="{x:Bind SelectedDevice,Mode=TwoWay}"/>
         </cm:SettingsCard>
     </StackPanel>
+
 </UserControl>
