@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ComputeSharp;
+using ComputeSharp.Resources;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -21,6 +22,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -38,9 +40,9 @@ namespace Simulator.NET.GrayScott.WinUI.Control
     public sealed partial class GrayScottConfigControl : UserControl
     {
         [ObservableProperty]
-        private int dataGridWidth = 3;
+        private int dataGridWidth = 100;
         [ObservableProperty]
-        private int dataGridHeight = 3;
+        private int dataGridHeight = 100;
         [ObservableProperty]
         private float feed = 0.055f;
         [ObservableProperty]
@@ -78,7 +80,7 @@ namespace Simulator.NET.GrayScott.WinUI.Control
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(s);
                     BitmapTransform transform = new BitmapTransform();
                     var pixels = await decoder.GetPixelDataAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, transform, ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-                    var bitmap = await decoder.GetSoftwareBitmapAsync();
+                    //var bitmap = await decoder.GetSoftwareBitmapAsync();
                     DataGridHeight = (int)decoder.PixelHeight;
                     DataGridWidth = (int)decoder.PixelWidth;
                     var pixelBuffer = pixels.DetachPixelData();
@@ -110,18 +112,20 @@ namespace Simulator.NET.GrayScott.WinUI.Control
             {
                 return startupItems.Value;
             }
-            //List<GrayScottItem> items = new List<GrayScottItem>()
-            //{
-            //    new GrayScottItem(){U=0,V=0.5f},
-            //    new GrayScottItem(){U=0,V=0},
-            //    new GrayScottItem(){U=0.5f,V=0}
-            //};
-            //return Random.Shared.GetItems<GrayScottItem>(items.ToArray().AsSpan(), DataGridHeight * DataGridWidth);
-            return new GrayScottItem[] {
-                new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },
-                new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 1 },new GrayScottItem(){ U=1, V = 0 },
-                new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 }
+            List<GrayScottItem> items = new List<GrayScottItem>()
+            {
+                new GrayScottItem(){U=1,V=1f},
+                new GrayScottItem(){U=1,V=0},
+                //new GrayScottItem(){U=1.5f,V=0}
             };
+            return Random.Shared.GetItems<GrayScottItem>(items.ToArray().AsSpan(), DataGridHeight * DataGridWidth);
+            //return new GrayScottItem[] {
+            //    new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },
+            //    new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 1 },new GrayScottItem(){ U=1, V = 0 },
+            //    new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 },new GrayScottItem(){ U=1, V = 0 }
+            //};
         }
+
+        
     }
 }

@@ -27,14 +27,14 @@ namespace Simulator.NET.GrayScott
             //diffuseV = 0;
             ////end of debug
             float uv2 = result.U * result.V * result.V;
-            result.U += diffuseU - uv2 + (1 - result.U) * f;
-            result.V += diffuseV + uv2 - (f + k) * result.V;
+            result.U += (0.2f*diffuseU - uv2 + (1 - result.U) * f)*1f;
+            result.V +=  (0.1f*diffuseV + uv2 - (f + k) * result.V)*1f;
             //debug
             //result.U += diffuseU;
             //result.V += diffuseV;
             //end of debug
-            result.U = Hlsl.Clamp(result.U, -1, 1);
-            result.V = Hlsl.Clamp(result.V, -1, 1);
+            result.U = Hlsl.Clamp(result.U, 0, 1);
+            result.V = Hlsl.Clamp(result.V, 0, 1);
             buffer2[idx] = result;
         }
 
@@ -44,7 +44,7 @@ namespace Simulator.NET.GrayScott
                 (DoSample(pos, new int2(-1, -1), size).U + 4f*DoSample(pos, new int2(-1, 0), size).U + DoSample(pos, new int2(-1, 1), size).U +
                 4f*DoSample(pos, new int2(0, -1), size).U + 4f*DoSample(pos, new int2(0, 1), size).U +
                 DoSample(pos, new int2(1, -1), size).U + 4f * DoSample(pos, new int2(1, 0), size).U + DoSample(pos, new int2(1, 1), size).U
-                - 20f * DoSample(pos, int2.Zero, size).U)/6;
+                - 20f * DoSample(pos, int2.Zero, size).U)/9;
         }
 
         public float LaplaceV(int2 pos, int2 size)
@@ -53,7 +53,7 @@ namespace Simulator.NET.GrayScott
                 (DoSample(pos, new int2(-1, -1), size).V + 4f * DoSample(pos, new int2(-1, 0), size).V + DoSample(pos, new int2(-1, 1), size).V +
                 4f * DoSample(pos, new int2(0, -1), size).V + 4f * DoSample(pos, new int2(0, 1), size).V +
                 DoSample(pos, new int2(1, -1), size).V + 4f * DoSample(pos, new int2(1, 0), size).V + DoSample(pos, new int2(1, 1), size).V
-                - 20f * DoSample(pos, int2.Zero, size).V) / 6;
+                - 20f * DoSample(pos, int2.Zero, size).V) / 9;
         }
 
         public float ConvU3x3(int2 pos, int2 size)

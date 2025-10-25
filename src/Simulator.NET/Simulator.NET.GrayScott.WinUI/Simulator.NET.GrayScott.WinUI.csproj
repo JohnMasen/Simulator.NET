@@ -23,6 +23,19 @@
     <ProjectReference Include="..\Simulator.NET.WinUI.Core\Simulator.NET.WinUI.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Resource1.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Control\GrayScottConfigControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
