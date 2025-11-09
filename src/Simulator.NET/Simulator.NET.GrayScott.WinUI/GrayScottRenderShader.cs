@@ -14,9 +14,9 @@ namespace Simulator.NET.GrayScott.WinUI
     {
         public void Execute()
         {
-            float4 result = float4.Zero;
+            //float4 result = float4.Zero;
             int idx = ThreadIds.Y * DispatchSize.X + ThreadIds.X;
-            result.A = 1f;
+            //result.A = 1f;
 
             int2 mapPos = 0;
             mapPos.X = (int)Hlsl.Lerp(0f, colorMap.Width, data[idx].U);

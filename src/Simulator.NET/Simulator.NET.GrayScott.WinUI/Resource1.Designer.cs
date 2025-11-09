@@ -63,6 +63,16 @@ namespace Simulator.NET.GrayScott.WinUI {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] GrayScottSample {
+            get {
+                object obj = ResourceManager.GetObject("GrayScottSample", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] RenderColorMapping {
             get {
                 object obj = ResourceManager.GetObject("RenderColorMapping", resourceCulture);

@@ -78,7 +78,6 @@ namespace Simulator.NET.GrayScott.WinUI.Control
                     BitmapOutput.CopyFromSpan(buffer.Span);
                     BitmapOutput.Invalidate();
                 });
-                //},new Bgra32(0,0,0,1));
             }, colorMap.buffer,colorMap.size);
             render.Init(device, size);
         }
@@ -96,9 +95,7 @@ namespace Simulator.NET.GrayScott.WinUI.Control
             else
             {
                 frameCount++;
-            }
-
-                ;
+            };
             
         }
         private async Task<(Bgra32[] buffer, System.Drawing.Size size)> LoadTextureFromStream(GraphicsDevice device, Stream s)

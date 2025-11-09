@@ -29,6 +29,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -60,6 +61,12 @@ namespace Simulator.NET.GrayScott.WinUI.Control
             DeviceList = ImmutableList.Create([.. GraphicsDevice.EnumerateDevices()]);
             SelectedDevice = GraphicsDevice.GetDefault();
         }
+        [RelayCommand]
+        private async Task LoadFromSampleImageAsync()
+        {
+            using MemoryStream ms = new MemoryStream(Resource1.GrayScottSample);
+            await internalLoadFromImageAsync(ms.AsRandomAccessStream());
+        }
 
         [RelayCommand]
         private async Task LoadFromImageAsync()
@@ -77,33 +84,35 @@ namespace Simulator.NET.GrayScott.WinUI.Control
                 StorageFile sf = await StorageFile.GetFileFromPathAsync(file.Path);
                 using (var s = await sf.OpenReadAsync())
                 {
-                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(s);
-                    BitmapTransform transform = new BitmapTransform();
-                    var pixels = await decoder.GetPixelDataAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, transform, ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-                    //var bitmap = await decoder.GetSoftwareBitmapAsync();
-                    DataGridHeight = (int)decoder.PixelHeight;
-                    DataGridWidth = (int)decoder.PixelWidth;
-                    var pixelBuffer = pixels.DetachPixelData();
-
-                    //TODO: ugly implementation, should fix with Tensor
-                    startupItems = new Memory<GrayScottItem>(new GrayScottItem[pixelBuffer.Length]);
-                    //int pos = 0;
-                    //int startupItemsPos = 0;
-                    //GrayScottItem tmp = new GrayScottItem();
-                    Parallel.For(0, (int)(decoder.PixelHeight * decoder.PixelWidth),(int idx) =>
-                    {
-                        GrayScottItem tmp = new GrayScottItem();
-                        var pos = idx * 4;
-                        tmp.U = pixelBuffer[pos++] / 255f;//blue for U
-                        tmp.V = pixelBuffer[pos++] / 255f;//green for V
-                        pos += 2; //skip red and alpha channel
-                        startupItems.Value.Span[idx] = tmp;
-                    });
-                    
+                    await internalLoadFromImageAsync(s);
                 }
-
-
             }
+        }
+
+        private async Task internalLoadFromImageAsync(IRandomAccessStream s)
+        {
+            BitmapDecoder decoder = await BitmapDecoder.CreateAsync(s);
+            BitmapTransform transform = new BitmapTransform();
+            var pixels = await decoder.GetPixelDataAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, transform, ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
+            //var bitmap = await decoder.GetSoftwareBitmapAsync();
+            DataGridHeight = (int)decoder.PixelHeight;
+            DataGridWidth = (int)decoder.PixelWidth;
+            var pixelBuffer = pixels.DetachPixelData();
+
+            //TODO: ugly implementation, should fix with Tensor
+            startupItems = new Memory<GrayScottItem>(new GrayScottItem[pixelBuffer.Length]);
+            //int pos = 0;
+            //int startupItemsPos = 0;
+            //GrayScottItem tmp = new GrayScottItem();
+            Parallel.For(0, (int)(decoder.PixelHeight * decoder.PixelWidth), (int idx) =>
+            {
+                GrayScottItem tmp = new GrayScottItem();
+                var pos = idx * 4;
+                tmp.U = pixelBuffer[pos++] / 255f;//blue for U
+                tmp.V = pixelBuffer[pos++] / 255f;//green for V
+                pos += 2; //skip red and alpha channel
+                startupItems.Value.Span[idx] = tmp;
+            });
         }
 
         public Memory<GrayScottItem> CreateStartupItems()

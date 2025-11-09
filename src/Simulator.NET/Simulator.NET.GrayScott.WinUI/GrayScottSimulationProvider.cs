@@ -40,7 +40,7 @@ namespace Simulator.NET.GrayScott.WinUI
             SimulationController = new SimulationController(() =>
             {
                 //var raw = Random.Shared.GetItems<GrayScottItem>(items.ToArray().AsSpan(), config.DataGridHeight*config.DataGridWidth);
-                return new SwapBufferSession<GrayScottItem>(GraphicsDevice.GetDefault(),
+                return new SwapBufferSession<GrayScottItem>(config.SelectedDevice,
                     new System.Drawing.Size(config.DataGridWidth, config.DataGridHeight),
                     config.CreateStartupItems().Span,
                     new GrayScottProcessor(config.Feed, config.KillRate),
