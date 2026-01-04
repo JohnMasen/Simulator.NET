@@ -94,27 +94,29 @@ namespace Simulator.NET.GrayScott.WinUI.Control
             BitmapDecoder decoder = await BitmapDecoder.CreateAsync(s);
             BitmapTransform transform = new BitmapTransform();
             var pixels = await decoder.GetPixelDataAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Straight, transform, ExifOrientationMode.IgnoreExifOrientation, ColorManagementMode.DoNotColorManage);
-            //var bitmap = await decoder.GetSoftwareBitmapAsync();
             DataGridHeight = (int)decoder.PixelHeight;
             DataGridWidth = (int)decoder.PixelWidth;
             var pixelBuffer = pixels.DetachPixelData();
 
             //TODO: ugly implementation, should fix with Tensor
             startupItems = new Memory<GrayScottItem>(new GrayScottItem[pixelBuffer.Length]);
-            //int pos = 0;
-            //int startupItemsPos = 0;
-            //GrayScottItem tmp = new GrayScottItem();
             Parallel.For(0, (int)(decoder.PixelHeight * decoder.PixelWidth), (int idx) =>
             {
                 GrayScottItem tmp = new GrayScottItem();
                 var pos = idx * 4;
                 tmp.U = pixelBuffer[pos++] / 255f;//blue for U
-                tmp.V = pixelBuffer[pos++] / 255f;//green for V
-                pos += 2; //skip red and alpha channel
+                tmp.V = pixelBuffer[pos] / 255f;//green for V
+                //pos += 2; //skip red and alpha channel
                 startupItems.Value.Span[idx] = tmp;
             });
         }
 
+        [RelayCommand]
+        private void ResetDefault()
+        {
+            Feed = 0.055f;
+            KillRate = 0.062f;
+        }
         public Memory<GrayScottItem> CreateStartupItems()
         {
             if (startupItems is not null)

@@ -15,6 +15,7 @@
         <TextBlock>Blue=U Green=V</TextBlock>
         <Button Command="{x:Bind LoadFromImageCommand}" >Load From Image</Button>
         <Button Command="{x:Bind LoadFromSampleImageCommand}">Load Sample Image</Button>
+        <Button Command="{x:Bind ResetDefaultCommand}">Reset Default</Button>
         <cm:SettingsCard Description="The size of LifeGame playground"
              Header="GridSize"
              HeaderIcon="{ct:FontIcon Glyph=&#xE80A;}"
