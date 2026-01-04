@@ -106,7 +106,6 @@ namespace Simulator.NET.GrayScott.WinUI.Control
                 var pos = idx * 4;
                 tmp.U = pixelBuffer[pos++] / 255f;//blue for U
                 tmp.V = pixelBuffer[pos] / 255f;//green for V
-                //pos += 2; //skip red and alpha channel
                 startupItems.Value.Span[idx] = tmp;
             });
         }
