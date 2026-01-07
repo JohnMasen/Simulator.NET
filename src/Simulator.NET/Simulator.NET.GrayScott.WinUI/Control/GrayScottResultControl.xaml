@@ -9,8 +9,9 @@
     mc:Ignorable="d">
     <StackPanel>
         <TextBlock Text="{x:Bind FrameCount,Mode=OneWay}"/>
+        <Slider Header="Frame Skip" Minimum="0" Maximum="100" Value="{x:Bind FrameSkip,Mode=TwoWay}"/>
         <ScrollView ZoomMode="Enabled">
-        <Image x:Name="imgOutput" Source="{x:Bind BitmapOutput,Mode=OneWay}"/>
-    </ScrollView>
+            <Image x:Name="imgOutput" Source="{x:Bind BitmapOutput,Mode=OneWay}"/>
+        </ScrollView>
     </StackPanel>
 </UserControl>

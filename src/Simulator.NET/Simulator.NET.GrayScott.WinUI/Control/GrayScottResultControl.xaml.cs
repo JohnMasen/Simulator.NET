@@ -35,7 +35,7 @@ namespace Simulator.NET.GrayScott.WinUI.Control
         private WriteableBitmap bitmapOutput;
         [ObservableProperty]
         private int frameCount;
-
+        [ObservableProperty]
         private int frameSkip = 0;
         private GrayScottRender<Bgra32> render;
 
