@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NurallCellTest.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "NurallCellTest.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
